@@ -43,9 +43,9 @@ def get_response():
     chat_history.append(f"User: {user_message}")
 
 
-    # Keep only last 10 messages
-    if len(chat_history) > 10:
-        chat_history = chat_history[-10:]
+    # Keep only last 50 messages
+    if len(chat_history) > 50:
+        chat_history = chat_history[-50:]
 
 
     conversation = "\n".join(chat_history)
