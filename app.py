@@ -106,7 +106,7 @@ AI:
     except Exception as e:
 
         error_message = str(e)
-
+print("GEMINI ERROR:", str(e))
 
         if "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
 
