@@ -102,11 +102,13 @@ AI:
         chat_history.append(f"AI: {reply}")
 
 
-
     except Exception as e:
 
+        # Show the REAL Gemini error in Render Logs
+        print("GEMINI ERROR:", str(e))
+
         error_message = str(e)
-print("GEMINI ERROR:", str(e))
+
 
         if "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
 
@@ -118,9 +120,7 @@ print("GEMINI ERROR:", str(e))
             reply = "माफ करा, काही technical problem आली आहे. कृपया पुन्हा प्रयत्न करा. 😊"
 
 
-
     return jsonify({"response": reply})
-
 
 
 if __name__ == "__main__":
