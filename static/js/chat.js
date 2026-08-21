@@ -1,91 +1,168 @@
-const sendBtn = document.getElementById("sendBtn");
-const userInput = document.getElementById("userInput");
+// ==========================================
+// NeuraChat AI - Chat JavaScript
+// ==========================================
+
+
+// ==========================================
+// ELEMENTS
+// ==========================================
+
 const chatBox = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+
 const micBtn = document.getElementById("micBtn");
-
 const clearBtn = document.getElementById("clearBtn");
-const voiceBtn = document.getElementById("voiceBtn");
 const newChatBtn = document.getElementById("newChatBtn");
+const voiceBtn = document.getElementById("voiceBtn");
+
+const imageInput = document.getElementById("imageInput");
+const imagePreview = document.getElementById("imagePreview");
+const imagePreviewContainer =
+    document.getElementById("imagePreviewContainer");
+const removeImageBtn =
+    document.getElementById("removeImageBtn");
 
 
-// =========================
-// CHAT HISTORY
-// =========================
+// ==========================================
+// SELECTED IMAGE
+// ==========================================
 
-const savedChat =
-    localStorage.getItem("neuraChatHistory");
-
-if (savedChat) {
-    chatBox.innerHTML = savedChat;
-}
+let selectedImage = null;
 
 
-// =========================
-// VOICE ON / OFF
-// =========================
+// ==========================================
+// IMAGE UPLOAD
+// ==========================================
 
-let voiceEnabled = true;
+if (imageInput) {
 
+    imageInput.addEventListener("change", function () {
 
-// =========================
-// SAVE CHAT HISTORY
-// =========================
+        const file = imageInput.files[0];
 
-function saveChatHistory() {
+        if (!file) {
+            return;
+        }
 
-    localStorage.setItem(
-        "neuraChatHistory",
-        chatBox.innerHTML
-    );
+        if (!file.type.startsWith("image/")) {
 
-}
+            alert("Please select a valid image.");
 
+            imageInput.value = "";
 
-// =========================
-// Current Time
-// =========================
+            return;
+        }
 
-function getCurrentTime() {
+        selectedImage = file;
 
-    const now = new Date();
+        const reader = new FileReader();
 
-    return now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
+        reader.onload = function (event) {
+
+            if (imagePreview) {
+                imagePreview.src = event.target.result;
+            }
+
+            if (imagePreviewContainer) {
+                imagePreviewContainer.style.display = "flex";
+            }
+
+        };
+
+        reader.readAsDataURL(file);
+
     });
 
 }
 
 
-// =========================
-// Add User Message
-// =========================
+// ==========================================
+// REMOVE IMAGE
+// ==========================================
 
-function addUserMessage(message) {
+if (removeImageBtn) {
 
-    chatBox.innerHTML += `
-        <div class="message-row user-row">
+    removeImageBtn.addEventListener("click", function () {
 
-            <div class="message user-message">
+        selectedImage = null;
 
-                <div class="message-name">
-                    👤 You
-                </div>
+        if (imageInput) {
+            imageInput.value = "";
+        }
 
-                <div class="message-text">
-                    ${message}
-                </div>
+        if (imagePreview) {
+            imagePreview.src = "";
+        }
 
-                <small>
-                    ${getCurrentTime()}
-                </small>
+        if (imagePreviewContainer) {
+            imagePreviewContainer.style.display = "none";
+        }
 
-            </div>
+    });
 
-        </div>
-    `;
+}
 
-    saveChatHistory();
+
+// ==========================================
+// ADD MESSAGE TO CHAT
+// ==========================================
+
+function addMessage(sender, message, type) {
+
+    const row = document.createElement("div");
+
+    row.className = "message-row " + type + "-row";
+
+
+    const messageDiv =
+        document.createElement("div");
+
+    messageDiv.className =
+        "message " + type + "-message";
+
+
+    const name =
+        document.createElement("div");
+
+    name.className = "message-name";
+
+    name.textContent =
+        sender;
+
+
+    const text =
+        document.createElement("div");
+
+    text.className = "message-text";
+
+    text.textContent =
+        message;
+
+
+    const time =
+        document.createElement("small");
+
+    time.textContent =
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+
+    messageDiv.appendChild(name);
+    messageDiv.appendChild(text);
+    messageDiv.appendChild(time);
+
+    row.appendChild(messageDiv);
+
+    chatBox.appendChild(row);
+
+
+    // Scroll to bottom
 
     chatBox.scrollTop =
         chatBox.scrollHeight;
@@ -93,667 +170,537 @@ function addUserMessage(message) {
 }
 
 
-// =========================
-// Add AI Message
-// =========================
-
-function addAIMessage(message) {
-
-    chatBox.innerHTML += `
-        <div class="message-row bot-row">
-
-            <div class="message bot-message">
-
-                <div class="message-name">
-                    🤖 NeuraChat AI
-                </div>
-
-                <div class="message-text">
-                    ${message}
-                </div>
-
-                <small>
-                    ${getCurrentTime()}
-                </small>
-
-            </div>
-
-        </div>
-    `;
-
-    saveChatHistory();
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
-
-}
-
-
-// =========================
-// Typing Animation
-// =========================
-
-function showTyping() {
-
-    chatBox.innerHTML += `
-        <div id="typing"
-             class="message-row bot-row">
-
-            <div class="message bot-message">
-
-                <div class="message-name">
-                    🤖 NeuraChat AI
-                </div>
-
-                <div class="typing-dots">
-
-                    <span></span>
-                    <span></span>
-                    <span></span>
-
-                </div>
-
-            </div>
-
-        </div>
-    `;
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
-
-}
-
-
-// =========================
-// Remove Typing
-// =========================
-
-function removeTyping() {
-
-    const typing =
-        document.getElementById("typing");
-
-    if (typing) {
-        typing.remove();
-    }
-
-}
-
-
-// =========================
+// ==========================================
 // SEND MESSAGE
-// =========================
+// ==========================================
 
 async function sendMessage() {
 
-    let message =
+    const message =
         userInput.value.trim();
 
-    if (message === "") {
+
+    // Check empty message and image
+
+    if (!message && !selectedImage) {
+
         return;
+
     }
 
 
-    addUserMessage(message);
+    // Display user message
+
+    if (message) {
+
+        addMessage(
+            "👤 You",
+            message,
+            "user"
+        );
+
+    }
+
+
+    // Display image in chat
+
+    if (selectedImage) {
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "message-row user-row";
+
+
+        const messageDiv =
+            document.createElement("div");
+
+        messageDiv.className =
+            "message user-message";
+
+
+        const name =
+            document.createElement("div");
+
+        name.className =
+            "message-name";
+
+        name.textContent =
+            "👤 You";
+
+
+        const img =
+            document.createElement("img");
+
+        img.src =
+            URL.createObjectURL(selectedImage);
+
+        img.style.maxWidth =
+            "250px";
+
+        img.style.maxHeight =
+            "250px";
+
+        img.style.borderRadius =
+            "10px";
+
+        img.style.marginTop =
+            "8px";
+
+
+        messageDiv.appendChild(name);
+        messageDiv.appendChild(img);
+
+        row.appendChild(messageDiv);
+
+        chatBox.appendChild(row);
+
+    }
+
+
+    // Save current image
+
+    const imageToSend =
+        selectedImage;
+
+
+    // Clear input
 
     userInput.value = "";
 
-    showTyping();
+
+    selectedImage = null;
 
 
-    const status =
-        document.querySelector(".status");
-
-    if (status) {
-        status.innerHTML =
-            "🧠 Thinking...";
+    if (imageInput) {
+        imageInput.value = "";
     }
+
+
+    if (imagePreview) {
+        imagePreview.src = "";
+    }
+
+
+    if (imagePreviewContainer) {
+        imagePreviewContainer.style.display =
+            "none";
+    }
+
+
+    // Typing message
+
+    const typingRow =
+        document.createElement("div");
+
+    typingRow.className =
+        "message-row bot-row";
+
+    typingRow.id =
+        "typingMessage";
+
+
+    const typingDiv =
+        document.createElement("div");
+
+    typingDiv.className =
+        "message bot-message";
+
+    typingDiv.textContent =
+        "🤖 NeuraChat AI is thinking...";
+
+
+    typingRow.appendChild(typingDiv);
+
+    chatBox.appendChild(typingRow);
+
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
 
 
     try {
 
-        const response =
-            await fetch("/get_response", {
+        // ==================================
+        // TEXT ONLY
+        // ==================================
 
-                method: "POST",
+        if (!imageToSend) {
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+            const response =
+                await fetch(
+                    "/get_response",
+                    {
+                        method: "POST",
 
-                body: JSON.stringify({
-                    message: message
-                })
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-            });
-
-
-        const data =
-            await response.json();
-
-
-        removeTyping();
-
-        addAIMessage(
-            data.response
-        );
+                        body: JSON.stringify({
+                            message: message
+                        })
+                    }
+                );
 
 
-        // =========================
-        // ERROR PROTECTION
-        // =========================
+            const data =
+                await response.json();
 
-        if (
-            data.response.includes("Error") ||
-            data.response.includes("429") ||
-            data.response.includes(
-                "RESOURCE_EXHAUSTED"
-            ) ||
-            data.response.includes("limit") ||
-            data.response.includes(
-                "technical problem"
-            )
-        ) {
 
-            if (status) {
-                status.innerHTML =
-                    "🟢 Online";
+            removeTyping();
+
+
+            if (data.response) {
+
+                addMessage(
+                    "🤖 NeuraChat AI",
+                    data.response,
+                    "bot"
+                );
+
+            } else {
+
+                addMessage(
+                    "🤖 NeuraChat AI",
+                    "Sorry, I couldn't understand that.",
+                    "bot"
+                );
+
             }
 
-            return;
         }
 
 
-        // =========================
-        // VOICE OFF
-        // =========================
+        // ==================================
+        // IMAGE MESSAGE
+        // ==================================
 
-        if (!voiceEnabled) {
+        else {
 
-            if (status) {
-                status.innerHTML =
-                    "🟢 Online";
-            }
-
-            return;
-        }
+            const formData =
+                new FormData();
 
 
-        // =========================
-        // AI VOICE
-        // =========================
-
-        const speech =
-            new SpeechSynthesisUtterance(
-                data.response
+            formData.append(
+                "message",
+                message
             );
 
 
-        speech.lang = "en-US";
+            formData.append(
+                "image",
+                imageToSend
+            );
 
-        speech.rate = 1.2;
 
-        speech.pitch = 1;
+            const response =
+                await fetch(
+                    "/get_response",
+                    {
+                        method: "POST",
+
+                        body: formData
+                    }
+                );
 
 
-        if (status) {
-            status.innerHTML =
-                "🔊 Speaking...";
+            const data =
+                await response.json();
+
+
+            removeTyping();
+
+
+            if (data.response) {
+
+                addMessage(
+                    "🤖 NeuraChat AI",
+                    data.response,
+                    "bot"
+                );
+
+            } else {
+
+                addMessage(
+                    "🤖 NeuraChat AI",
+                    "I received the image, but I couldn't process it yet.",
+                    "bot"
+                );
+
+            }
+
         }
 
+    }
 
-        window.speechSynthesis.cancel();
+    catch (error) {
 
-        window.speechSynthesis.speak(
-            speech
+        console.error(
+            "Error:",
+            error
         );
 
-
-        speech.onend =
-            function() {
-
-                if (status) {
-                    status.innerHTML =
-                        "🟢 Online";
-                }
-
-            };
-
-
-    } catch (error) {
 
         removeTyping();
 
-        addAIMessage(
-            "⚠️ Server connection problem. Please try again."
+
+        addMessage(
+            "🤖 NeuraChat AI",
+            "⚠️ Server connection problem. Please try again.",
+            "bot"
         );
-
-
-        if (status) {
-            status.innerHTML =
-                "🟢 Online";
-        }
 
     }
 
 }
 
 
-// =========================
+// ==========================================
+// REMOVE TYPING MESSAGE
+// ==========================================
+
+function removeTyping() {
+
+    const typing =
+        document.getElementById(
+            "typingMessage"
+        );
+
+
+    if (typing) {
+
+        typing.remove();
+
+    }
+
+}
+
+
+// ==========================================
 // SEND BUTTON
-// =========================
+// ==========================================
 
-sendBtn.addEventListener(
-    "click",
-    sendMessage
-);
+if (sendBtn) {
+
+    sendBtn.addEventListener(
+        "click",
+        sendMessage
+    );
+
+}
 
 
-// =========================
+// ==========================================
 // ENTER KEY
-// =========================
+// ==========================================
 
-userInput.addEventListener(
-    "keydown",
-    function(event) {
+if (userInput) {
 
-        if (event.key === "Enter") {
+    userInput.addEventListener(
+        "keydown",
+        function (event) {
 
-            event.preventDefault();
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
 
-            sendMessage();
-
-        }
-
-    }
-);
-
-
-// =========================
-// NEW CHAT
-// =========================
-
-if (newChatBtn) {
-
-    newChatBtn.addEventListener(
-        "click",
-        function() {
-
-            const confirmNewChat =
-                confirm(
-                    "Start a new chat? 💬"
-                );
-
-
-            if (!confirmNewChat) {
-                return;
-            }
-
-
-            // Stop voice
-
-            window.speechSynthesis.cancel();
-
-
-            // Remove old history
-
-            localStorage.removeItem(
-                "neuraChatHistory"
-            );
-
-
-            // New chat
-
-            chatBox.innerHTML = `
-                <div class="message-row bot-row">
-
-                    <div class="message bot-message">
-
-                        <div class="message-name">
-                            🤖 NeuraChat AI
-                        </div>
-
-                        <div class="message-text">
-                            Hello! How can I help you? 😊
-                        </div>
-
-                        <small>
-                            Just now
-                        </small>
-
-                    </div>
-
-                </div>
-            `;
-
-
-            userInput.value = "";
-
-
-            const status =
-                document.querySelector(
-                    ".status"
-                );
-
-
-            if (status) {
-                status.innerHTML =
-                    "🟢 Online";
-            }
-
-        }
-    );
-
-}
-
-
-// =========================
-// CLEAR CHAT
-// =========================
-
-if (clearBtn) {
-
-    clearBtn.addEventListener(
-        "click",
-        function() {
-
-            const confirmClear =
-                confirm(
-                    "Are you sure you want to clear the chat? 🗑️"
-                );
-
-
-            if (!confirmClear) {
-                return;
-            }
-
-
-            window.speechSynthesis.cancel();
-
-
-            chatBox.innerHTML = `
-                <div class="message-row bot-row">
-
-                    <div class="message bot-message">
-
-                        <div class="message-name">
-                            🤖 NeuraChat AI
-                        </div>
-
-                        <div class="message-text">
-                            Hello! How can I help you? 😊
-                        </div>
-
-                        <small>
-                            Just now
-                        </small>
-
-                    </div>
-
-                </div>
-            `;
-
-
-            localStorage.removeItem(
-                "neuraChatHistory"
-            );
-
-
-            const status =
-                document.querySelector(
-                    ".status"
-                );
-
-
-            if (status) {
-                status.innerHTML =
-                    "🟢 Online";
-            }
-
-        }
-    );
-
-}
-
-
-// =========================
-// VOICE ON / OFF
-// =========================
-
-if (voiceBtn) {
-
-    voiceBtn.addEventListener(
-        "click",
-        function() {
-
-            if (voiceEnabled) {
-
-                voiceEnabled = false;
-
-                window.speechSynthesis.cancel();
-
-                voiceBtn.innerHTML =
-                    "🔇";
-
-                voiceBtn.title =
-                    "Voice Off";
-
-            }
-
-            else {
-
-                voiceEnabled = true;
-
-                voiceBtn.innerHTML =
-                    "🔊";
-
-                voiceBtn.title =
-                    "Voice On";
-
-            }
-
-        }
-    );
-
-}
-
-
-// =========================
-// VOICE RECOGNITION
-// =========================
-
-const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-
-let recognition = null;
-
-
-if (SpeechRecognition) {
-
-    recognition =
-        new SpeechRecognition();
-
-
-    recognition.lang = "en-US";
-
-    recognition.continuous = false;
-
-    recognition.interimResults = true;
-
-    recognition.maxAlternatives = 1;
-
-
-    // =========================
-    // MIC BUTTON
-    // =========================
-
-    micBtn.addEventListener(
-        "click",
-        function() {
-
-            try {
-
-                recognition.start();
-
-                micBtn.innerHTML =
-                    "🔴";
-
-                micBtn.title =
-                    "Listening...";
-
-                micBtn.classList.add(
-                    "listening"
-                );
-
-
-                const status =
-                    document.querySelector(
-                        ".status"
-                    );
-
-
-                if (status) {
-                    status.innerHTML =
-                        "🎤 Listening...";
-                }
-
-
-            } catch (error) {
-
-                console.log(
-                    "Recognition already started."
-                );
-
-            }
-
-        }
-    );
-
-
-    // =========================
-    // VOICE RESULT
-    // =========================
-
-    recognition.onresult =
-        function(event) {
-
-            let result =
-                event.results[
-                    event.results.length - 1
-                ];
-
-
-            if (result.isFinal) {
-
-                const voiceText =
-                    result[0].transcript;
-
-
-                userInput.value =
-                    voiceText;
-
-
-                micBtn.innerHTML =
-                    "🎤";
-
-                micBtn.title =
-                    "Speak";
-
-                micBtn.classList.remove(
-                    "listening"
-                );
-
+                event.preventDefault();
 
                 sendMessage();
 
             }
 
-        };
+        }
+    );
+
+}
 
 
-    // =========================
-    // VOICE END
-    // =========================
+// ==========================================
+// CLEAR CHAT
+// ==========================================
 
-    recognition.onend =
-        function() {
+if (clearBtn) {
 
-            micBtn.innerHTML =
-                "🎤";
+    clearBtn.addEventListener(
+        "click",
+        function () {
 
-            micBtn.title =
-                "Speak";
+            chatBox.innerHTML = "";
 
-            micBtn.classList.remove(
-                "listening"
+            addMessage(
+                "🤖 NeuraChat AI",
+                "Chat cleared! How can I help you? 😊",
+                "bot"
             );
 
+        }
+    );
 
-            const status =
-                document.querySelector(
-                    ".status"
+}
+
+
+// ==========================================
+// NEW CHAT
+// ==========================================
+
+if (newChatBtn) {
+
+    newChatBtn.addEventListener(
+        "click",
+        function () {
+
+            chatBox.innerHTML = "";
+
+            addMessage(
+                "🤖 NeuraChat AI",
+                "New chat started! 😊",
+                "bot"
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// VOICE OUTPUT
+// ==========================================
+
+let voiceEnabled = true;
+
+
+if (voiceBtn) {
+
+    voiceBtn.addEventListener(
+        "click",
+        function () {
+
+            voiceEnabled =
+                !voiceEnabled;
+
+
+            voiceBtn.textContent =
+                voiceEnabled
+                    ? "🔊"
+                    : "🔇";
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// TEXT TO SPEECH
+// ==========================================
+
+function speakText(text) {
+
+    if (!voiceEnabled) {
+        return;
+    }
+
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+
+        return;
+
+    }
+
+
+    const speech =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+
+    speech.lang =
+        "en-US";
+
+
+    window.speechSynthesis.speak(
+        speech
+    );
+
+}
+
+
+// ==========================================
+// MICROPHONE
+// ==========================================
+
+if (micBtn) {
+
+    micBtn.addEventListener(
+        "click",
+        function () {
+
+            const SpeechRecognition =
+                window.SpeechRecognition ||
+                window.webkitSpeechRecognition;
+
+
+            if (!SpeechRecognition) {
+
+                alert(
+                    "Voice input is not supported in this browser."
                 );
 
-
-            if (
-                status &&
-                !window.speechSynthesis.speaking
-            ) {
-
-                status.innerHTML =
-                    "🟢 Online";
+                return;
 
             }
 
-        };
+
+            const recognition =
+                new SpeechRecognition();
 
 
-    // =========================
-    // VOICE ERROR
-    // =========================
-
-    recognition.onerror =
-        function(event) {
-
-            micBtn.innerHTML =
-                "🎤";
-
-            micBtn.title =
-                "Speak";
-
-            micBtn.classList.remove(
-                "listening"
-            );
+            recognition.lang =
+                "en-US";
 
 
-            const status =
-                document.querySelector(
-                    ".status"
-                );
+            recognition.start();
 
 
-            if (status) {
-                status.innerHTML =
-                    "🟢 Online";
-            }
+            micBtn.textContent =
+                "🔴";
 
 
-            console.log(
-                "Voice Error:",
-                event.error
-            );
+            recognition.onresult =
+                function (event) {
 
-        };
+                    userInput.value =
+                        event.results[0][0].transcript;
+
+                };
 
 
-} else {
+            recognition.onend =
+                function () {
 
-    micBtn.disabled = true;
+                    micBtn.textContent =
+                        "🎤";
 
-    micBtn.innerHTML =
-        "❌";
+                };
+
+
+            recognition.onerror =
+                function () {
+
+                    micBtn.textContent =
+                        "🎤";
+
+                };
+
+        }
+    );
 
 }
