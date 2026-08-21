@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,6 +12,7 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
 
 
@@ -31,7 +33,21 @@
             🟢 Online
         </p>
 
+
         <div class="chat-controls">
+
+
+            <!-- EXAM MODE -->
+
+            <button
+                id="examModeBtn"
+                title="Exam Mode"
+                type="button">
+                📝
+            </button>
+
+
+            <!-- NEW CHAT -->
 
             <button
                 id="newChatBtn"
@@ -40,12 +56,18 @@
                 ➕
             </button>
 
+
+            <!-- CLEAR -->
+
             <button
                 id="clearBtn"
                 title="Clear Chat"
                 type="button">
                 🗑️
             </button>
+
+
+            <!-- VOICE -->
 
             <button
                 id="voiceBtn"
@@ -56,6 +78,87 @@
 
         </div>
 
+    </div>
+
+
+    <!-- =========================
+         EXAM PANEL
+    ========================== -->
+
+    <div
+        id="examPanel"
+        style="
+            display:none;
+            padding:15px;
+            margin:10px;
+            border-radius:12px;
+            background:#f3f4f6;
+        ">
+
+
+        <h3>
+            📝 Exam Mode
+        </h3>
+
+
+        <input
+            type="text"
+            id="examTopic"
+            placeholder="Enter subject/topic e.g. Java"
+            autocomplete="off"
+            style="
+                width:70%;
+                padding:10px;
+                border-radius:8px;
+                border:1px solid #ccc;
+            "
+        >
+
+
+        <input
+            type="number"
+            id="examQuestions"
+            value="5"
+            min="1"
+            max="20"
+            style="
+                width:70px;
+                padding:10px;
+                border-radius:8px;
+                border:1px solid #ccc;
+            "
+        >
+
+
+        <button
+            id="startExamBtn"
+            type="button">
+            Start Exam
+        </button>
+
+
+        <button
+            id="endExamBtn"
+            type="button"
+            style="display:none;">
+            End Exam
+        </button>
+
+
+    </div>
+
+
+    <!-- =========================
+         EXAM STATUS
+    ========================== -->
+
+    <div
+        id="examStatus"
+        style="
+            display:none;
+            padding:8px 15px;
+            font-weight:bold;
+        ">
     </div>
 
 
@@ -92,14 +195,16 @@
          IMAGE PREVIEW
     ========================== -->
 
-    <div id="imagePreviewContainer"
-         style="display: none;">
+    <div
+        id="imagePreviewContainer"
+        style="display:none;">
 
         <img
             id="imagePreview"
             src=""
             alt="Selected Image"
         >
+
 
         <button
             id="removeImageBtn"
@@ -118,8 +223,6 @@
     <div class="input-area">
 
 
-        <!-- Hidden Image Input -->
-
         <input
             type="file"
             id="imageInput"
@@ -127,8 +230,6 @@
             hidden
         >
 
-
-        <!-- Image Upload Button -->
 
         <button
             id="uploadBtn"
@@ -138,8 +239,6 @@
         </button>
 
 
-        <!-- Text Input -->
-
         <input
             type="text"
             id="userInput"
@@ -147,8 +246,6 @@
             autocomplete="off"
         >
 
-
-        <!-- Microphone -->
 
         <button
             id="micBtn"
@@ -158,14 +255,11 @@
         </button>
 
 
-        <!-- Send -->
-
         <button
             id="sendBtn"
             type="button">
             Send
         </button>
-
 
     </div>
 
@@ -173,12 +267,7 @@
 </div>
 
 
-<!-- =========================
-     CHAT JAVASCRIPT
-========================== -->
-
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
-
 
 </body>
 
