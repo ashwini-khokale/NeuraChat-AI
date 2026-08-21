@@ -71,15 +71,11 @@ chat_history = []
 
 
 # =====================================================
-# EXAM MEMORY
+# CURRENT PDF MEMORY
 # =====================================================
 
-exam_mode = False
-exam_topic = ""
-exam_total_questions = 5
-exam_current_question = 0
-exam_score = 0
-exam_started = False
+current_pdf_bytes = None
+current_pdf_name = None
 
 
 # =====================================================
@@ -103,159 +99,6 @@ def chat():
 
 
 # =====================================================
-# START EXAM
-# =====================================================
-
-@app.route("/start_exam", methods=["POST"])
-def start_exam():
-
-    global exam_mode
-    global exam_topic
-    global exam_total_questions
-    global exam_current_question
-    global exam_score
-    global exam_started
-    global chat_history
-
-    try:
-
-        data = request.get_json() or {}
-
-        exam_topic = data.get(
-            "topic",
-            ""
-        ).strip()
-
-        exam_total_questions = int(
-            data.get(
-                "questions",
-                5
-            )
-        )
-
-        # Limit questions
-
-        if exam_total_questions < 1:
-            exam_total_questions = 1
-
-        if exam_total_questions > 20:
-            exam_total_questions = 20
-
-
-        if not exam_topic:
-
-            return jsonify({
-                "response":
-                "कृपया exam topic किंवा subject लिहा. 😊"
-            })
-
-
-        # Reset exam
-
-        exam_mode = True
-        exam_started = True
-        exam_current_question = 1
-        exam_score = 0
-
-        chat_history = []
-
-
-        # Prompt for first question
-
-        prompt = f"""
-You are NeuraChat AI Exam Mode.
-
-The student wants to take an exam.
-
-Subject / Topic:
-{exam_topic}
-
-Total Questions:
-{exam_total_questions}
-
-This is question number 1.
-
-Rules:
-
-- Ask ONLY one question.
-- Do not give the answer.
-- Do not explain the answer yet.
-- Wait for the student's answer.
-- Questions should be suitable for a student.
-- Mix conceptual and practical questions when appropriate.
-- Keep the question clear.
-- Use the same language as the student's topic/request.
-- Number the question as Question 1.
-
-Start the exam now.
-"""
-
-
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt
-        )
-
-
-        reply = response.text
-
-
-        return jsonify({
-            "response": reply,
-            "exam": True,
-            "question_number": exam_current_question,
-            "total_questions": exam_total_questions,
-            "score": exam_score
-        })
-
-
-    except Exception as e:
-
-        print(
-            "EXAM START ERROR:",
-            str(e),
-            flush=True
-        )
-
-        return jsonify({
-            "response":
-            "⚠️ Exam सुरू करताना problem आली. Please try again."
-        })
-
-
-# =====================================================
-# END EXAM
-# =====================================================
-
-@app.route("/end_exam", methods=["POST"])
-def end_exam():
-
-    global exam_mode
-    global exam_started
-    global exam_topic
-    global exam_current_question
-    global exam_score
-
-    result = {
-        "response":
-        f"📝 Exam समाप्त झाला!\n\n"
-        f"📚 Topic: {exam_topic}\n"
-        f"📊 Score: {exam_score}/{exam_total_questions}\n\n"
-        f"🎉 Well done!"
-    }
-
-
-    exam_mode = False
-    exam_started = False
-    exam_topic = ""
-    exam_current_question = 0
-    exam_score = 0
-
-
-    return jsonify(result)
-
-
-# =====================================================
 # AI RESPONSE
 # =====================================================
 
@@ -263,22 +106,23 @@ def end_exam():
 def get_response():
 
     global chat_history
-
-    global exam_mode
-    global exam_topic
-    global exam_total_questions
-    global exam_current_question
-    global exam_score
-    global exam_started
-
+    global current_pdf_bytes
+    global current_pdf_name
 
     try:
 
         # =================================================
-        # CHECK IMAGE
+        # GET IMAGE
         # =================================================
 
         image_file = request.files.get("image")
+
+
+        # =================================================
+        # GET PDF
+        # =================================================
+
+        pdf_file = request.files.get("pdf")
 
 
         # =================================================
@@ -304,204 +148,25 @@ def get_response():
 
 
         # =================================================
-        # EMPTY MESSAGE + NO IMAGE
+        # CHECK EMPTY REQUEST
         # =================================================
 
-        if not user_message and not image_file:
+        if (
+            not user_message
+            and not image_file
+            and not pdf_file
+        ):
 
             return jsonify({
 
                 "response":
-                "कृपया message लिहा किंवा image upload करा. 😊"
+                "कृपया message लिहा, image upload करा किंवा PDF upload करा. 😊"
 
             })
 
 
         # =================================================
-        # EXAM MODE
-        # =================================================
-
-        if exam_mode and exam_started and user_message:
-
-            # ---------------------------------------------
-            # Save student answer
-            # ---------------------------------------------
-
-            answer_prompt = f"""
-You are NeuraChat AI Exam Evaluator.
-
-Exam Topic:
-{exam_topic}
-
-Total Questions:
-{exam_total_questions}
-
-Current Question Number:
-{exam_current_question}
-
-The student has submitted this answer:
-
-{user_message}
-
-Evaluate the student's answer.
-
-Rules:
-
-1. Decide whether the answer is correct, partially correct, or incorrect.
-2. Give a short explanation.
-3. If correct, say "✅ Correct".
-4. If partially correct, say "🟡 Partially Correct".
-5. If incorrect, say "❌ Incorrect".
-6. Do NOT be overly strict with wording.
-7. Focus on the meaning of the answer.
-8. After evaluation, generate the NEXT question.
-9. Do not reveal the next answer.
-10. Keep the next question suitable for the topic.
-11. Use the same language as the student.
-
-Your response must have this structure:
-
-Result:
-[Correct / Partially Correct / Incorrect]
-
-Explanation:
-[Short explanation]
-
-Next Question:
-[Next question]
-"""
-
-
-            response = client.models.generate_content(
-                model="gemini-3.6-flash",
-                contents=answer_prompt
-            )
-
-
-            reply = response.text
-
-
-            # ---------------------------------------------
-            # Determine score using AI result
-            # ---------------------------------------------
-
-            lower_reply = reply.lower()
-
-
-            if (
-                "result:" in lower_reply
-                and "correct" in lower_reply
-                and "incorrect" not in lower_reply
-                and "partially" not in lower_reply
-            ):
-
-                exam_score += 1
-
-
-            elif "result:" in lower_reply:
-
-                if (
-                    "partially correct" not in lower_reply
-                    and "incorrect" not in lower_reply
-                    and "correct" in lower_reply
-                ):
-
-                    exam_score += 1
-
-
-            # ---------------------------------------------
-            # Move to next question
-            # ---------------------------------------------
-
-            exam_current_question += 1
-
-
-            # ---------------------------------------------
-            # Finish exam
-            # ---------------------------------------------
-
-            if exam_current_question > exam_total_questions:
-
-                final_prompt = f"""
-The exam is finished.
-
-Topic:
-{exam_topic}
-
-Total Questions:
-{exam_total_questions}
-
-Student Score:
-{exam_score}
-
-Create a short final result for the student.
-
-Include:
-
-📝 Exam Completed
-📚 Topic
-📊 Score
-📈 Percentage
-💬 Short encouraging feedback
-
-Do not create another question.
-"""
-
-
-                final_response = client.models.generate_content(
-                    model="gemini-3.6-flash",
-                    contents=final_prompt
-                )
-
-
-                final_reply = final_response.text
-
-
-                exam_mode = False
-                exam_started = False
-
-
-                return jsonify({
-
-                    "response":
-                    reply
-                    + "\n\n"
-                    + "━━━━━━━━━━━━━━━━━━\n\n"
-                    + final_reply,
-
-                    "exam": True,
-                    "finished": True,
-                    "score": exam_score,
-                    "total_questions":
-                    exam_total_questions
-
-                })
-
-
-            # ---------------------------------------------
-            # Continue exam
-            # ---------------------------------------------
-
-            return jsonify({
-
-                "response": reply,
-
-                "exam": True,
-
-                "question_number":
-                exam_current_question,
-
-                "total_questions":
-                exam_total_questions,
-
-                "score":
-                exam_score
-
-            })
-
-
-        # =================================================
-        # STORE NORMAL USER MESSAGE
+        # SAVE USER MESSAGE
         # =================================================
 
         if user_message:
@@ -521,13 +186,17 @@ Do not create another question.
 
 
         # =================================================
-        # AI PROMPT
+        # CONVERSATION
         # =================================================
 
         conversation_text = "\n".join(
             chat_history
         )
 
+
+        # =================================================
+        # MAIN AI PROMPT
+        # =================================================
 
         prompt = f"""
 You are NeuraChat AI, a friendly and intelligent AI assistant.
@@ -564,10 +233,181 @@ Conversation:
 
 
         # =================================================
+        # PDF UPLOAD
+        # =================================================
+
+        if pdf_file:
+
+            filename = pdf_file.filename or ""
+
+            # Check PDF extension
+
+            if not filename.lower().endswith(".pdf"):
+
+                return jsonify({
+
+                    "response":
+                    "⚠️ कृपया फक्त PDF file upload करा."
+
+                })
+
+
+            # Read PDF
+
+            pdf_bytes = pdf_file.read()
+
+
+            # Check empty PDF
+
+            if not pdf_bytes:
+
+                return jsonify({
+
+                    "response":
+                    "⚠️ PDF रिकामी आहे. दुसरी PDF upload करा."
+
+                })
+
+
+            # Save PDF in server memory
+
+            current_pdf_bytes = pdf_bytes
+
+            current_pdf_name = filename
+
+
+            # Create PDF part
+
+            pdf_part = types.Part.from_bytes(
+
+                data=pdf_bytes,
+
+                mime_type="application/pdf"
+
+            )
+
+
+            # =================================================
+            # PDF + QUESTION
+            # =================================================
+
+            if user_message:
+
+                pdf_prompt = f"""
+{prompt}
+
+The user has uploaded a PDF document.
+
+PDF file name:
+{filename}
+
+User's question:
+
+{user_message}
+
+Read and analyze the uploaded PDF carefully.
+
+Answer the user's question using the information
+from the PDF whenever possible.
+
+If the answer is not available in the PDF,
+clearly say that it is not mentioned in the PDF.
+"""
+
+
+            # =================================================
+            # PDF WITHOUT QUESTION
+            # =================================================
+
+            else:
+
+                pdf_prompt = f"""
+{prompt}
+
+The user has uploaded a PDF document.
+
+PDF file name:
+{filename}
+
+Analyze the PDF and give a short useful summary.
+
+Mention:
+- Main topic
+- Important points
+- Important sections
+- What the PDF is mainly about
+"""
+
+
+            # =================================================
+            # GEMINI PDF REQUEST
+            # =================================================
+
+            response = client.models.generate_content(
+
+                model="gemini-3.6-flash",
+
+                contents=[
+                    pdf_part,
+                    pdf_prompt
+                ]
+
+            )
+
+
+        # =================================================
+        # ASK QUESTION ABOUT PREVIOUS PDF
+        # =================================================
+
+        elif current_pdf_bytes and user_message:
+
+            pdf_part = types.Part.from_bytes(
+
+                data=current_pdf_bytes,
+
+                mime_type="application/pdf"
+
+            )
+
+
+            pdf_prompt = f"""
+{prompt}
+
+The user previously uploaded this PDF:
+
+{current_pdf_name}
+
+Use the PDF as the main source for answering the
+user's question.
+
+User's current question:
+
+{user_message}
+
+Answer clearly and accurately.
+
+If the answer is not present in the PDF,
+say that it is not mentioned in the PDF.
+"""
+
+
+            response = client.models.generate_content(
+
+                model="gemini-3.6-flash",
+
+                contents=[
+                    pdf_part,
+                    pdf_prompt
+                ]
+
+            )
+
+
+        # =================================================
         # IMAGE REQUEST
         # =================================================
 
-        if image_file:
+        elif image_file:
 
             image_bytes = image_file.read()
 
@@ -598,9 +438,9 @@ User's question:
 
 {user_message}
 
-Analyze the uploaded image carefully and answer the user's question.
+Analyze the uploaded image carefully
+and answer the user's question.
 """
-
 
             else:
 
@@ -609,7 +449,8 @@ Analyze the uploaded image carefully and answer the user's question.
 
 The user has uploaded an image.
 
-Analyze the uploaded image carefully and describe what you can see.
+Analyze the uploaded image carefully
+and describe what you can see.
 """
 
 
@@ -697,6 +538,10 @@ Analyze the uploaded image carefully and describe what you can see.
         )
 
 
+        # =================================================
+        # AUTHENTICATION ERROR
+        # =================================================
+
         if (
             "401" in error_message
             or "UNAUTHENTICATED" in error_message
@@ -710,6 +555,10 @@ Analyze the uploaded image carefully and describe what you can see.
             )
 
 
+        # =================================================
+        # MODEL ERROR
+        # =================================================
+
         elif (
             "404" in error_message
             or "NOT_FOUND" in error_message
@@ -718,9 +567,13 @@ Analyze the uploaded image carefully and describe what you can see.
 
             reply = (
                 "⚠️ Gemini model उपलब्ध नाही. "
-                "कृपया Render Logs तपासा."
+                "Render Logs मध्ये available models तपासा."
             )
 
+
+        # =================================================
+        # RATE LIMIT
+        # =================================================
 
         elif (
             "429" in error_message
@@ -734,6 +587,10 @@ Analyze the uploaded image carefully and describe what you can see.
             )
 
 
+        # =================================================
+        # SERVER BUSY
+        # =================================================
+
         elif (
             "503" in error_message
             or "UNAVAILABLE" in error_message
@@ -744,6 +601,25 @@ Analyze the uploaded image carefully and describe what you can see.
                 "कृपया काही सेकंदांनी पुन्हा प्रयत्न करा."
             )
 
+
+        # =================================================
+        # PDF ERROR
+        # =================================================
+
+        elif (
+            "pdf" in error_message.lower()
+            or "mime" in error_message.lower()
+        ):
+
+            reply = (
+                "⚠️ PDF process करताना problem आली. "
+                "कृपया दुसरी PDF try करा."
+            )
+
+
+        # =================================================
+        # OTHER ERROR
+        # =================================================
 
         else:
 
