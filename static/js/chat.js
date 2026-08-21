@@ -8,21 +8,47 @@
 // ==========================================
 
 const chatBox = document.getElementById("chatBox");
-const userInput = document.getElementById("userInput");
 
-const sendBtn = document.getElementById("sendBtn");
-const micBtn = document.getElementById("micBtn");
+const userInput =
+    document.getElementById("userInput");
 
-const uploadBtn = document.getElementById("uploadBtn");
-const imageInput = document.getElementById("imageInput");
+const sendBtn =
+    document.getElementById("sendBtn");
 
-const imagePreview = document.getElementById("imagePreview");
+const micBtn =
+    document.getElementById("micBtn");
 
-const imagePreviewContainer =
-    document.getElementById("imagePreviewContainer");
+const uploadBtn =
+    document.getElementById("uploadBtn");
 
-const removeImageBtn =
-    document.getElementById("removeImageBtn");
+const imageInput =
+    document.getElementById("imageInput");
+
+const pdfBtn =
+    document.getElementById("pdfBtn");
+
+const pdfInput =
+    document.getElementById("pdfInput");
+
+const filePreviewContainer =
+    document.getElementById(
+        "filePreviewContainer"
+    );
+
+const imagePreview =
+    document.getElementById("imagePreview");
+
+const imagePreviewBox =
+    document.getElementById("imagePreviewBox");
+
+const pdfPreviewBox =
+    document.getElementById("pdfPreviewBox");
+
+const pdfFileName =
+    document.getElementById("pdfFileName");
+
+const removeFileBtn =
+    document.getElementById("removeFileBtn");
 
 const clearBtn =
     document.getElementById("clearBtn");
@@ -35,44 +61,18 @@ const voiceBtn =
 
 
 // ==========================================
-// EXAM ELEMENTS
-// ==========================================
-
-const examModeBtn =
-    document.getElementById("examModeBtn");
-
-const examPanel =
-    document.getElementById("examPanel");
-
-const examTopic =
-    document.getElementById("examTopic");
-
-const examQuestions =
-    document.getElementById("examQuestions");
-
-const startExamBtn =
-    document.getElementById("startExamBtn");
-
-const endExamBtn =
-    document.getElementById("endExamBtn");
-
-const examStatus =
-    document.getElementById("examStatus");
-
-
-// ==========================================
 // VARIABLES
 // ==========================================
 
 let selectedImage = null;
 
-let voiceEnabled = true;
+let selectedPdf = null;
 
-let examActive = false;
+let voiceEnabled = true;
 
 
 // ==========================================
-// IMAGE UPLOAD
+// IMAGE UPLOAD BUTTON
 // ==========================================
 
 if (uploadBtn && imageInput) {
@@ -99,8 +99,7 @@ if (imageInput) {
         "change",
         function () {
 
-            const file =
-                this.files[0];
+            const file = this.files[0];
 
 
             if (!file) {
@@ -125,33 +124,10 @@ if (imageInput) {
 
             selectedImage = file;
 
-
-            const reader =
-                new FileReader();
+            selectedPdf = null;
 
 
-            reader.onload =
-                function (event) {
-
-                    if (imagePreview) {
-
-                        imagePreview.src =
-                            event.target.result;
-
-                    }
-
-
-                    if (imagePreviewContainer) {
-
-                        imagePreviewContainer.style.display =
-                            "flex";
-
-                    }
-
-                };
-
-
-            reader.readAsDataURL(file);
+            showImagePreview(file);
 
         }
     );
@@ -160,21 +136,196 @@ if (imageInput) {
 
 
 // ==========================================
-// REMOVE IMAGE
+// PDF BUTTON
 // ==========================================
 
-if (removeImageBtn) {
+if (pdfBtn && pdfInput) {
 
-    removeImageBtn.addEventListener(
+    pdfBtn.addEventListener(
+        "click",
+        function () {
+
+            pdfInput.click();
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// PDF SELECT
+// ==========================================
+
+if (pdfInput) {
+
+    pdfInput.addEventListener(
+        "change",
+        function () {
+
+            const file = this.files[0];
+
+
+            if (!file) {
+
+                return;
+
+            }
+
+
+            if (
+                file.type !== "application/pdf"
+                &&
+                !file.name.toLowerCase().endsWith(".pdf")
+            ) {
+
+                alert(
+                    "Please select a valid PDF file."
+                );
+
+                this.value = "";
+
+                return;
+
+            }
+
+
+            selectedPdf = file;
+
+            selectedImage = null;
+
+
+            showPdfPreview(file);
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// SHOW IMAGE PREVIEW
+// ==========================================
+
+function showImagePreview(file) {
+
+    if (!filePreviewContainer) {
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function (event) {
+
+            if (imagePreview) {
+
+                imagePreview.src =
+                    event.target.result;
+
+            }
+
+
+            if (imagePreviewBox) {
+
+                imagePreviewBox.style.display =
+                    "block";
+
+            }
+
+
+            if (pdfPreviewBox) {
+
+                pdfPreviewBox.style.display =
+                    "none";
+
+            }
+
+
+            filePreviewContainer.style.display =
+                "flex";
+
+        };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+
+// ==========================================
+// SHOW PDF PREVIEW
+// ==========================================
+
+function showPdfPreview(file) {
+
+    if (!filePreviewContainer) {
+
+        return;
+
+    }
+
+
+    if (imagePreviewBox) {
+
+        imagePreviewBox.style.display =
+            "none";
+
+    }
+
+
+    if (pdfPreviewBox) {
+
+        pdfPreviewBox.style.display =
+            "flex";
+
+    }
+
+
+    if (pdfFileName) {
+
+        pdfFileName.textContent =
+            file.name;
+
+    }
+
+
+    filePreviewContainer.style.display =
+        "flex";
+
+}
+
+
+// ==========================================
+// REMOVE FILE
+// ==========================================
+
+if (removeFileBtn) {
+
+    removeFileBtn.addEventListener(
         "click",
         function () {
 
             selectedImage = null;
 
+            selectedPdf = null;
+
 
             if (imageInput) {
 
                 imageInput.value = "";
+
+            }
+
+
+            if (pdfInput) {
+
+                pdfInput.value = "";
 
             }
 
@@ -186,9 +337,9 @@ if (removeImageBtn) {
             }
 
 
-            if (imagePreviewContainer) {
+            if (filePreviewContainer) {
 
-                imagePreviewContainer.style.display =
+                filePreviewContainer.style.display =
                     "none";
 
             }
@@ -358,7 +509,70 @@ function addImageMessage(file) {
 
 
 // ==========================================
-// TYPING
+// ADD PDF MESSAGE
+// ==========================================
+
+function addPdfMessage(file) {
+
+    const row =
+        document.createElement("div");
+
+
+    row.className =
+        "message-row user-row";
+
+
+    const messageDiv =
+        document.createElement("div");
+
+
+    messageDiv.className =
+        "message user-message";
+
+
+    const name =
+        document.createElement("div");
+
+
+    name.className =
+        "message-name";
+
+
+    name.textContent =
+        "👤 You";
+
+
+    const pdfBox =
+        document.createElement("div");
+
+
+    pdfBox.className =
+        "pdf-message-box";
+
+
+    pdfBox.innerHTML =
+        "📄 <strong>" +
+        file.name +
+        "</strong>";
+
+
+    messageDiv.appendChild(name);
+
+    messageDiv.appendChild(pdfBox);
+
+    row.appendChild(messageDiv);
+
+    chatBox.appendChild(row);
+
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+// ==========================================
+// TYPING MESSAGE
 // ==========================================
 
 function showTyping() {
@@ -429,12 +643,20 @@ async function sendMessage() {
         userInput.value.trim();
 
 
-    if (!message && !selectedImage) {
+    // Nothing to send
+
+    if (
+        !message &&
+        !selectedImage &&
+        !selectedPdf
+    ) {
 
         return;
 
     }
 
+
+    // Show user text
 
     if (message) {
 
@@ -447,9 +669,17 @@ async function sendMessage() {
     }
 
 
+    // Save files before clearing
+
     const imageToSend =
         selectedImage;
 
+
+    const pdfToSend =
+        selectedPdf;
+
+
+    // Show image
 
     if (imageToSend) {
 
@@ -460,9 +690,25 @@ async function sendMessage() {
     }
 
 
+    // Show PDF
+
+    if (pdfToSend) {
+
+        addPdfMessage(
+            pdfToSend
+        );
+
+    }
+
+
+    // Clear input
+
     userInput.value = "";
 
+
     selectedImage = null;
+
+    selectedPdf = null;
 
 
     if (imageInput) {
@@ -472,20 +718,22 @@ async function sendMessage() {
     }
 
 
-    if (imagePreview) {
+    if (pdfInput) {
 
-        imagePreview.src = "";
+        pdfInput.value = "";
 
     }
 
 
-    if (imagePreviewContainer) {
+    if (filePreviewContainer) {
 
-        imagePreviewContainer.style.display =
+        filePreviewContainer.style.display =
             "none";
 
     }
 
+
+    // Show typing
 
     showTyping();
 
@@ -496,27 +744,35 @@ async function sendMessage() {
 
 
         // ======================================
-        // TEXT
+        // TEXT ONLY
         // ======================================
 
-        if (!imageToSend) {
+        if (
+            !imageToSend &&
+            !pdfToSend
+        ) {
 
             response =
                 await fetch(
                     "/get_response",
                     {
+
                         method: "POST",
 
                         headers: {
+
                             "Content-Type":
                                 "application/json"
+
                         },
 
-                        body:
-                            JSON.stringify({
-                                message:
-                                    message
-                            })
+                        body: JSON.stringify({
+
+                            message:
+                                message
+
+                        })
+
                     }
                 );
 
@@ -527,7 +783,7 @@ async function sendMessage() {
         // IMAGE
         // ======================================
 
-        else {
+        else if (imageToSend) {
 
             const formData =
                 new FormData();
@@ -549,15 +805,57 @@ async function sendMessage() {
                 await fetch(
                     "/get_response",
                     {
+
                         method: "POST",
 
-                        body:
-                            formData
+                        body: formData
+
                     }
                 );
 
         }
 
+
+        // ======================================
+        // PDF
+        // ======================================
+
+        else if (pdfToSend) {
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "message",
+                message
+            );
+
+
+            formData.append(
+                "pdf",
+                pdfToSend
+            );
+
+
+            response =
+                await fetch(
+                    "/get_response",
+                    {
+
+                        method: "POST",
+
+                        body: formData
+
+                    }
+                );
+
+        }
+
+
+        // ======================================
+        // RESPONSE
+        // ======================================
 
         const data =
             await response.json();
@@ -578,41 +876,7 @@ async function sendMessage() {
         );
 
 
-        // ======================================
-        // EXAM STATUS
-        // ======================================
-
-        if (data.exam) {
-
-            examActive = true;
-
-
-            updateExamStatus(
-                data.question_number,
-                data.total_questions,
-                data.score
-            );
-
-        }
-
-
-        if (data.finished) {
-
-            examActive = false;
-
-
-            updateExamStatus(
-                0,
-                data.total_questions,
-                data.score
-            );
-
-
-            endExamBtn.style.display =
-                "none";
-
-        }
-
+        // Speak AI response
 
         speakText(reply);
 
@@ -656,7 +920,7 @@ if (sendBtn) {
 
 
 // ==========================================
-// ENTER
+// ENTER KEY
 // ==========================================
 
 if (userInput) {
@@ -673,310 +937,6 @@ if (userInput) {
                 event.preventDefault();
 
                 sendMessage();
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// EXAM MODE BUTTON
-// ==========================================
-
-if (examModeBtn) {
-
-    examModeBtn.addEventListener(
-        "click",
-        function () {
-
-            if (!examPanel) {
-
-                return;
-
-            }
-
-
-            if (
-                examPanel.style.display === "none" ||
-                examPanel.style.display === ""
-            ) {
-
-                examPanel.style.display =
-                    "block";
-
-            }
-
-            else {
-
-                examPanel.style.display =
-                    "none";
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// START EXAM
-// ==========================================
-
-if (startExamBtn) {
-
-    startExamBtn.addEventListener(
-        "click",
-        async function () {
-
-            const topic =
-                examTopic.value.trim();
-
-
-            let questions =
-                parseInt(
-                    examQuestions.value
-                );
-
-
-            if (!topic) {
-
-                alert(
-                    "Please enter exam topic."
-                );
-
-                return;
-
-            }
-
-
-            if (
-                isNaN(questions) ||
-                questions < 1
-            ) {
-
-                questions = 5;
-
-            }
-
-
-            if (questions > 20) {
-
-                questions = 20;
-
-            }
-
-
-            // Clear chat
-
-            chatBox.innerHTML = "";
-
-
-            addMessage(
-                "🤖 NeuraChat AI",
-                "📝 Exam Mode Started!\n📚 Topic: " +
-                topic +
-                "\n📊 Questions: " +
-                questions,
-                "bot"
-            );
-
-
-            showTyping();
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/start_exam",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    topic:
-                                        topic,
-
-                                    questions:
-                                        questions
-                                })
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                removeTyping();
-
-
-                addMessage(
-                    "🤖 NeuraChat AI",
-                    data.response,
-                    "bot"
-                );
-
-
-                if (data.exam) {
-
-                    examActive = true;
-
-
-                    updateExamStatus(
-                        data.question_number,
-                        data.total_questions,
-                        data.score
-                    );
-
-
-                    startExamBtn.style.display =
-                        "none";
-
-
-                    endExamBtn.style.display =
-                        "inline-block";
-
-                }
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Exam Error:",
-                    error
-                );
-
-
-                removeTyping();
-
-
-                addMessage(
-                    "🤖 NeuraChat AI",
-                    "⚠️ Could not start exam.",
-                    "bot"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// UPDATE EXAM STATUS
-// ==========================================
-
-function updateExamStatus(
-    question,
-    total,
-    score
-) {
-
-    if (!examStatus) {
-
-        return;
-
-    }
-
-
-    examStatus.style.display =
-        "block";
-
-
-    if (question === 0) {
-
-        examStatus.textContent =
-            "🏆 Final Score: " +
-            score +
-            "/" +
-            total;
-
-        return;
-
-    }
-
-
-    examStatus.textContent =
-        "📝 Question " +
-        question +
-        "/" +
-        total +
-        "    |    🏆 Score: " +
-        score;
-
-}
-
-
-// ==========================================
-// END EXAM
-// ==========================================
-
-if (endExamBtn) {
-
-    endExamBtn.addEventListener(
-        "click",
-        async function () {
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/end_exam",
-                        {
-                            method: "POST"
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                addMessage(
-                    "🤖 NeuraChat AI",
-                    data.response,
-                    "bot"
-                );
-
-
-                examActive = false;
-
-
-                endExamBtn.style.display =
-                    "none";
-
-
-                startExamBtn.style.display =
-                    "inline-block";
-
-
-                examStatus.style.display =
-                    "block";
-
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "End Exam Error:",
-                    error
-                );
 
             }
 
@@ -1210,33 +1170,6 @@ if (newChatBtn) {
                 "New chat started! 😊",
                 "bot"
             );
-
-
-            examActive = false;
-
-
-            if (examStatus) {
-
-                examStatus.style.display =
-                    "none";
-
-            }
-
-
-            if (startExamBtn) {
-
-                startExamBtn.style.display =
-                    "inline-block";
-
-            }
-
-
-            if (endExamBtn) {
-
-                endExamBtn.style.display =
-                    "none";
-
-            }
 
         }
     );
