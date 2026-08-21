@@ -31,7 +31,6 @@
             🟢 Online
         </p>
 
-
         <div class="chat-controls">
 
             <button
@@ -41,14 +40,12 @@
                 ➕
             </button>
 
-
             <button
                 id="clearBtn"
                 title="Clear Chat"
                 type="button">
                 🗑️
             </button>
-
 
             <button
                 id="voiceBtn"
@@ -76,11 +73,9 @@
                     🤖 NeuraChat AI
                 </div>
 
-
                 <div class="message-text">
                     Hello! How can I help you? 😊
                 </div>
-
 
                 <small>
                     Just now
@@ -91,7 +86,6 @@
         </div>
 
     </div>
-
 
 
     <!-- =========================
@@ -105,12 +99,6 @@
             id="imagePreview"
             src=""
             alt="Selected Image"
-            style="
-                max-width: 180px;
-                max-height: 180px;
-                border-radius: 10px;
-                margin: 10px;
-            "
         >
 
         <button
@@ -121,7 +109,6 @@
         </button>
 
     </div>
-
 
 
     <!-- =========================
@@ -147,9 +134,7 @@
             id="uploadBtn"
             title="Upload Image"
             type="button">
-
             🖼️
-
         </button>
 
 
@@ -169,9 +154,7 @@
             id="micBtn"
             title="Speak"
             type="button">
-
             🎤
-
         </button>
 
 
@@ -180,9 +163,7 @@
         <button
             id="sendBtn"
             type="button">
-
             Send
-
         </button>
 
 
@@ -192,130 +173,11 @@
 </div>
 
 
-
 <!-- =========================
      CHAT JAVASCRIPT
 ========================== -->
 
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
-
-
-
-<script>
-
-    console.log(
-        "NeuraChat AI chat.js loaded successfully"
-    );
-
-
-    // =========================
-    // IMAGE UPLOAD
-    // =========================
-
-    const uploadBtn =
-        document.getElementById("uploadBtn");
-
-    const imageInput =
-        document.getElementById("imageInput");
-
-    const imagePreviewContainer =
-        document.getElementById(
-            "imagePreviewContainer"
-        );
-
-    const imagePreview =
-        document.getElementById(
-            "imagePreview"
-        );
-
-    const removeImageBtn =
-        document.getElementById(
-            "removeImageBtn"
-        );
-
-
-    // Open file selector
-
-    uploadBtn.addEventListener(
-        "click",
-        function () {
-
-            imageInput.click();
-
-        }
-    );
-
-
-    // Show selected image
-
-    imageInput.addEventListener(
-        "change",
-        function () {
-
-            const file =
-                imageInput.files[0];
-
-
-            if (!file) {
-                return;
-            }
-
-
-            // Check image type
-
-            if (!file.type.startsWith("image/")) {
-
-                alert(
-                    "Please select an image file."
-                );
-
-                imageInput.value = "";
-
-                return;
-            }
-
-
-            // Create preview
-
-            const reader =
-                new FileReader();
-
-
-            reader.onload =
-                function (event) {
-
-                    imagePreview.src =
-                        event.target.result;
-
-                    imagePreviewContainer.style.display =
-                        "flex";
-
-                };
-
-
-            reader.readAsDataURL(file);
-
-        }
-    );
-
-
-    // Remove selected image
-
-    removeImageBtn.addEventListener(
-        "click",
-        function () {
-
-            imageInput.value = "";
-
-            imagePreview.src = "";
-
-            imagePreviewContainer.style.display =
-                "none";
-
-        }
-    );
-
-</script>
 
 
 </body>
