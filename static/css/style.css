@@ -18,11 +18,13 @@ body {
             #ff4fa3 0%,
             transparent 35%
         ),
+
         radial-gradient(
             circle at bottom right,
             #c026d3 0%,
             transparent 35%
         ),
+
         linear-gradient(
             135deg,
             #170b1c,
@@ -69,6 +71,7 @@ body {
     box-shadow:
         0 20px 50px
         rgba(0, 0, 0, 0.35),
+
         0 0 30px
         rgba(255, 79, 163, 0.15);
 }
@@ -167,6 +170,7 @@ button:hover {
     box-shadow:
         0 20px 60px
         rgba(0, 0, 0, 0.4),
+
         0 0 40px
         rgba(255, 79, 163, 0.12);
 }
@@ -461,6 +465,116 @@ button:hover {
 
 
 /* =========================
+   IMAGE UPLOAD BUTTON
+========================= */
+
+#uploadBtn {
+
+    padding: 15px;
+
+    font-size: 18px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff4fa3,
+            #ec4899
+        );
+
+    color: white;
+
+    box-shadow:
+        0 5px 20px
+        rgba(255, 79, 163, 0.3);
+
+    transition: 0.3s;
+
+    flex-shrink: 0;
+
+    position: relative;
+
+    z-index: 10;
+}
+
+
+#uploadBtn:hover {
+
+    transform: scale(1.05);
+
+    box-shadow:
+        0 8px 25px
+        rgba(255, 79, 163, 0.5);
+}
+
+
+#uploadBtn:active {
+
+    transform: scale(0.95);
+}
+
+
+/* =========================
+   IMAGE PREVIEW
+========================= */
+
+#imagePreviewContainer {
+
+    display: none;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 15px;
+
+    background:
+        rgba(20, 5, 20, 0.45);
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+}
+
+
+#imagePreview {
+
+    width: 120px;
+
+    height: 120px;
+
+    object-fit: cover;
+
+    border-radius: 12px;
+
+    border:
+        2px solid
+        rgba(255, 79, 163, 0.6);
+
+    box-shadow:
+        0 5px 20px
+        rgba(255, 79, 163, 0.25);
+}
+
+
+#removeImageBtn {
+
+    padding: 8px 10px;
+
+    font-size: 14px;
+
+    border-radius: 10px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================
    SEND BUTTON
 ========================= */
 
@@ -500,6 +614,8 @@ button:hover {
     box-shadow:
         0 5px 20px
         rgba(255, 79, 163, 0.3);
+
+    flex-shrink: 0;
 }
 
 
@@ -696,6 +812,8 @@ button:hover {
     .input-area {
 
         padding: 10px;
+
+        gap: 6px;
     }
 
 
@@ -704,6 +822,14 @@ button:hover {
         font-size: 14px;
 
         padding: 12px;
+    }
+
+
+    #uploadBtn {
+
+        padding: 12px;
+
+        font-size: 16px;
     }
 
 
@@ -797,6 +923,14 @@ button:hover {
     }
 
 
+    #uploadBtn {
+
+        padding: 11px;
+
+        font-size: 15px;
+    }
+
+
     #micBtn {
 
         padding: 11px;
@@ -810,6 +944,14 @@ button:hover {
         padding: 11px 13px;
 
         font-size: 14px;
+    }
+
+
+    #imagePreview {
+
+        width: 90px;
+
+        height: 90px;
     }
 
 }
@@ -844,6 +986,14 @@ button:hover {
     #micBtn {
 
         padding: 10px;
+    }
+
+
+    #uploadBtn {
+
+        padding: 10px;
+
+        font-size: 14px;
     }
 
 }
