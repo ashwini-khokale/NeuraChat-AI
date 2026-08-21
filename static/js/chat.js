@@ -9,66 +9,102 @@
 
 const chatBox = document.getElementById("chatBox");
 const userInput = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
 
+const sendBtn = document.getElementById("sendBtn");
 const micBtn = document.getElementById("micBtn");
+
+const uploadBtn = document.getElementById("uploadBtn");
+const imageInput = document.getElementById("imageInput");
+
+const imagePreview = document.getElementById("imagePreview");
+const imagePreviewContainer =
+    document.getElementById("imagePreviewContainer");
+
+const removeImageBtn =
+    document.getElementById("removeImageBtn");
+
 const clearBtn = document.getElementById("clearBtn");
 const newChatBtn = document.getElementById("newChatBtn");
 const voiceBtn = document.getElementById("voiceBtn");
 
-const imageInput = document.getElementById("imageInput");
-const imagePreview = document.getElementById("imagePreview");
-const imagePreviewContainer =
-    document.getElementById("imagePreviewContainer");
-const removeImageBtn =
-    document.getElementById("removeImageBtn");
-
 
 // ==========================================
-// SELECTED IMAGE
+// VARIABLES
 // ==========================================
 
 let selectedImage = null;
+let voiceEnabled = true;
 
 
 // ==========================================
-// IMAGE UPLOAD
+// IMAGE UPLOAD BUTTON
+// ==========================================
+
+if (uploadBtn && imageInput) {
+
+    uploadBtn.addEventListener("click", function () {
+
+        imageInput.click();
+
+    });
+
+}
+
+
+// ==========================================
+// IMAGE SELECT
 // ==========================================
 
 if (imageInput) {
 
     imageInput.addEventListener("change", function () {
 
-        const file = imageInput.files[0];
+        const file = this.files[0];
 
         if (!file) {
             return;
         }
 
+
+        // Check image
+
         if (!file.type.startsWith("image/")) {
 
             alert("Please select a valid image.");
 
-            imageInput.value = "";
+            this.value = "";
 
             return;
         }
 
+
         selectedImage = file;
 
+
+        // Create preview
+
         const reader = new FileReader();
+
 
         reader.onload = function (event) {
 
             if (imagePreview) {
-                imagePreview.src = event.target.result;
+
+                imagePreview.src =
+                    event.target.result;
+
             }
 
+
             if (imagePreviewContainer) {
-                imagePreviewContainer.style.display = "flex";
+
+                imagePreviewContainer.style.display =
+                    "flex";
+
             }
 
         };
+
 
         reader.readAsDataURL(file);
 
@@ -87,16 +123,26 @@ if (removeImageBtn) {
 
         selectedImage = null;
 
+
         if (imageInput) {
+
             imageInput.value = "";
+
         }
+
 
         if (imagePreview) {
+
             imagePreview.src = "";
+
         }
 
+
         if (imagePreviewContainer) {
-            imagePreviewContainer.style.display = "none";
+
+            imagePreviewContainer.style.display =
+                "none";
+
         }
 
     });
@@ -105,14 +151,16 @@ if (removeImageBtn) {
 
 
 // ==========================================
-// ADD MESSAGE TO CHAT
+// ADD MESSAGE
 // ==========================================
 
 function addMessage(sender, message, type) {
 
-    const row = document.createElement("div");
+    const row =
+        document.createElement("div");
 
-    row.className = "message-row " + type + "-row";
+    row.className =
+        "message-row " + type + "-row";
 
 
     const messageDiv =
@@ -125,7 +173,8 @@ function addMessage(sender, message, type) {
     const name =
         document.createElement("div");
 
-    name.className = "message-name";
+    name.className =
+        "message-name";
 
     name.textContent =
         sender;
@@ -134,7 +183,8 @@ function addMessage(sender, message, type) {
     const text =
         document.createElement("div");
 
-    text.className = "message-text";
+    text.className =
+        "message-text";
 
     text.textContent =
         message;
@@ -154,7 +204,9 @@ function addMessage(sender, message, type) {
 
 
     messageDiv.appendChild(name);
+
     messageDiv.appendChild(text);
+
     messageDiv.appendChild(time);
 
     row.appendChild(messageDiv);
@@ -162,10 +214,130 @@ function addMessage(sender, message, type) {
     chatBox.appendChild(row);
 
 
-    // Scroll to bottom
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+// ==========================================
+// ADD IMAGE MESSAGE
+// ==========================================
+
+function addImageMessage(file) {
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "message-row user-row";
+
+
+    const messageDiv =
+        document.createElement("div");
+
+    messageDiv.className =
+        "message user-message";
+
+
+    const name =
+        document.createElement("div");
+
+    name.className =
+        "message-name";
+
+    name.textContent =
+        "👤 You";
+
+
+    const img =
+        document.createElement("img");
+
+    img.src =
+        URL.createObjectURL(file);
+
+    img.style.maxWidth =
+        "250px";
+
+    img.style.maxHeight =
+        "250px";
+
+    img.style.borderRadius =
+        "12px";
+
+    img.style.marginTop =
+        "8px";
+
+
+    messageDiv.appendChild(name);
+
+    messageDiv.appendChild(img);
+
+    row.appendChild(messageDiv);
+
+    chatBox.appendChild(row);
+
 
     chatBox.scrollTop =
         chatBox.scrollHeight;
+
+}
+
+
+// ==========================================
+// TYPING MESSAGE
+// ==========================================
+
+function showTyping() {
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "message-row bot-row";
+
+    row.id =
+        "typingMessage";
+
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message bot-message";
+
+    message.textContent =
+        "🤖 NeuraChat AI is thinking...";
+
+
+    row.appendChild(message);
+
+    chatBox.appendChild(row);
+
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+// ==========================================
+// REMOVE TYPING
+// ==========================================
+
+function removeTyping() {
+
+    const typing =
+        document.getElementById(
+            "typingMessage"
+        );
+
+
+    if (typing) {
+
+        typing.remove();
+
+    }
 
 }
 
@@ -180,7 +352,7 @@ async function sendMessage() {
         userInput.value.trim();
 
 
-    // Check empty message and image
+    // Nothing to send
 
     if (!message && !selectedImage) {
 
@@ -189,7 +361,7 @@ async function sendMessage() {
     }
 
 
-    // Display user message
+    // Show text
 
     if (message) {
 
@@ -202,67 +374,21 @@ async function sendMessage() {
     }
 
 
-    // Display image in chat
-
-    if (selectedImage) {
-
-        const row =
-            document.createElement("div");
-
-        row.className =
-            "message-row user-row";
-
-
-        const messageDiv =
-            document.createElement("div");
-
-        messageDiv.className =
-            "message user-message";
-
-
-        const name =
-            document.createElement("div");
-
-        name.className =
-            "message-name";
-
-        name.textContent =
-            "👤 You";
-
-
-        const img =
-            document.createElement("img");
-
-        img.src =
-            URL.createObjectURL(selectedImage);
-
-        img.style.maxWidth =
-            "250px";
-
-        img.style.maxHeight =
-            "250px";
-
-        img.style.borderRadius =
-            "10px";
-
-        img.style.marginTop =
-            "8px";
-
-
-        messageDiv.appendChild(name);
-        messageDiv.appendChild(img);
-
-        row.appendChild(messageDiv);
-
-        chatBox.appendChild(row);
-
-    }
-
-
-    // Save current image
+    // Save image before clearing
 
     const imageToSend =
         selectedImage;
+
+
+    // Show image
+
+    if (imageToSend) {
+
+        addImageMessage(
+            imageToSend
+        );
+
+    }
 
 
     // Clear input
@@ -274,61 +400,44 @@ async function sendMessage() {
 
 
     if (imageInput) {
+
         imageInput.value = "";
+
     }
 
 
     if (imagePreview) {
+
         imagePreview.src = "";
+
     }
 
 
     if (imagePreviewContainer) {
+
         imagePreviewContainer.style.display =
             "none";
+
     }
 
 
-    // Typing message
+    // Show typing
 
-    const typingRow =
-        document.createElement("div");
-
-    typingRow.className =
-        "message-row bot-row";
-
-    typingRow.id =
-        "typingMessage";
-
-
-    const typingDiv =
-        document.createElement("div");
-
-    typingDiv.className =
-        "message bot-message";
-
-    typingDiv.textContent =
-        "🤖 NeuraChat AI is thinking...";
-
-
-    typingRow.appendChild(typingDiv);
-
-    chatBox.appendChild(typingRow);
-
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
+    showTyping();
 
 
     try {
 
-        // ==================================
+        let response;
+
+
+        // ======================================
         // TEXT ONLY
-        // ==================================
+        // ======================================
 
         if (!imageToSend) {
 
-            const response =
+            response =
                 await fetch(
                     "/get_response",
                     {
@@ -345,38 +454,12 @@ async function sendMessage() {
                     }
                 );
 
-
-            const data =
-                await response.json();
-
-
-            removeTyping();
-
-
-            if (data.response) {
-
-                addMessage(
-                    "🤖 NeuraChat AI",
-                    data.response,
-                    "bot"
-                );
-
-            } else {
-
-                addMessage(
-                    "🤖 NeuraChat AI",
-                    "Sorry, I couldn't understand that.",
-                    "bot"
-                );
-
-            }
-
         }
 
 
-        // ==================================
-        // IMAGE MESSAGE
-        // ==================================
+        // ======================================
+        // IMAGE + TEXT
+        // ======================================
 
         else {
 
@@ -396,7 +479,7 @@ async function sendMessage() {
             );
 
 
-            const response =
+            response =
                 await fetch(
                     "/get_response",
                     {
@@ -406,40 +489,39 @@ async function sendMessage() {
                     }
                 );
 
-
-            const data =
-                await response.json();
-
-
-            removeTyping();
-
-
-            if (data.response) {
-
-                addMessage(
-                    "🤖 NeuraChat AI",
-                    data.response,
-                    "bot"
-                );
-
-            } else {
-
-                addMessage(
-                    "🤖 NeuraChat AI",
-                    "I received the image, but I couldn't process it yet.",
-                    "bot"
-                );
-
-            }
-
         }
 
+
+        const data =
+            await response.json();
+
+
+        removeTyping();
+
+
+        const reply =
+            data.response ||
+            "Sorry, I couldn't get a response.";
+
+
+        addMessage(
+            "🤖 NeuraChat AI",
+            reply,
+            "bot"
+        );
+
+
+        // Speak AI response
+
+        speakText(reply);
+
     }
+
 
     catch (error) {
 
         console.error(
-            "Error:",
+            "Chat Error:",
             error
         );
 
@@ -452,27 +534,6 @@ async function sendMessage() {
             "⚠️ Server connection problem. Please try again.",
             "bot"
         );
-
-    }
-
-}
-
-
-// ==========================================
-// REMOVE TYPING MESSAGE
-// ==========================================
-
-function removeTyping() {
-
-    const typing =
-        document.getElementById(
-            "typingMessage"
-        );
-
-
-    if (typing) {
-
-        typing.remove();
 
     }
 
@@ -521,59 +582,8 @@ if (userInput) {
 
 
 // ==========================================
-// CLEAR CHAT
+// VOICE ON / OFF
 // ==========================================
-
-if (clearBtn) {
-
-    clearBtn.addEventListener(
-        "click",
-        function () {
-
-            chatBox.innerHTML = "";
-
-            addMessage(
-                "🤖 NeuraChat AI",
-                "Chat cleared! How can I help you? 😊",
-                "bot"
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// NEW CHAT
-// ==========================================
-
-if (newChatBtn) {
-
-    newChatBtn.addEventListener(
-        "click",
-        function () {
-
-            chatBox.innerHTML = "";
-
-            addMessage(
-                "🤖 NeuraChat AI",
-                "New chat started! 😊",
-                "bot"
-            );
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// VOICE OUTPUT
-// ==========================================
-
-let voiceEnabled = true;
-
 
 if (voiceBtn) {
 
@@ -585,10 +595,37 @@ if (voiceBtn) {
                 !voiceEnabled;
 
 
-            voiceBtn.textContent =
-                voiceEnabled
-                    ? "🔊"
-                    : "🔇";
+            if (voiceEnabled) {
+
+                voiceBtn.textContent =
+                    "🔊";
+
+                voiceBtn.title =
+                    "Voice On";
+
+            }
+
+            else {
+
+                voiceBtn.textContent =
+                    "🔇";
+
+                voiceBtn.title =
+                    "Voice Off";
+
+
+                // Stop current speech
+
+                if (
+                    "speechSynthesis"
+                    in window
+                ) {
+
+                    window.speechSynthesis.cancel();
+
+                }
+
+            }
 
         }
     );
@@ -603,7 +640,9 @@ if (voiceBtn) {
 function speakText(text) {
 
     if (!voiceEnabled) {
+
         return;
+
     }
 
 
@@ -616,6 +655,9 @@ function speakText(text) {
     }
 
 
+    window.speechSynthesis.cancel();
+
+
     const speech =
         new SpeechSynthesisUtterance(
             text
@@ -624,6 +666,12 @@ function speakText(text) {
 
     speech.lang =
         "en-US";
+
+    speech.rate =
+        1;
+
+    speech.pitch =
+        1;
 
 
     window.speechSynthesis.speak(
@@ -666,12 +714,18 @@ if (micBtn) {
             recognition.lang =
                 "en-US";
 
+            recognition.interimResults =
+                false;
 
-            recognition.start();
+            recognition.continuous =
+                false;
 
 
             micBtn.textContent =
                 "🔴";
+
+
+            recognition.start();
 
 
             recognition.onresult =
@@ -699,6 +753,54 @@ if (micBtn) {
                         "🎤";
 
                 };
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// CLEAR CHAT
+// ==========================================
+
+if (clearBtn) {
+
+    clearBtn.addEventListener(
+        "click",
+        function () {
+
+            chatBox.innerHTML = "";
+
+            addMessage(
+                "🤖 NeuraChat AI",
+                "Chat cleared! How can I help you? 😊",
+                "bot"
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// NEW CHAT
+// ==========================================
+
+if (newChatBtn) {
+
+    newChatBtn.addEventListener(
+        "click",
+        function () {
+
+            chatBox.innerHTML = "";
+
+            addMessage(
+                "🤖 NeuraChat AI",
+                "New chat started! 😊",
+                "bot"
+            );
 
         }
     );
