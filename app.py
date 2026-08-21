@@ -18,11 +18,72 @@ api_key = os.getenv("GOOGLE_API_KEY")
 
 
 # =====================================================
+# CHECK API KEY
+# =====================================================
+
+if not api_key:
+
+    print(
+        "WARNING: GOOGLE_API_KEY is not set!",
+        flush=True
+    )
+
+
+# =====================================================
 # CREATE GEMINI CLIENT
 # =====================================================
 
 client = genai.Client(
     api_key=api_key
+)
+
+
+# =====================================================
+# LIST AVAILABLE GEMINI MODELS
+# =====================================================
+
+print(
+    "==============================================",
+    flush=True
+)
+
+print(
+    "AVAILABLE GEMINI MODELS:",
+    flush=True
+)
+
+try:
+
+    for model in client.models.list():
+
+        supported_actions = (
+            getattr(
+                model,
+                "supported_actions",
+                []
+            )
+            or []
+        )
+
+        if "generateContent" in supported_actions:
+
+            print(
+                model.name,
+                flush=True
+            )
+
+except Exception as e:
+
+    print(
+        "Could not list Gemini models:",
+        str(e),
+        flush=True
+    )
+
+
+print(
+    "==============================================",
+    flush=True
 )
 
 
@@ -70,6 +131,7 @@ def get_response():
 
         image_file = request.files.get("image")
 
+
         # =================================================
         # GET MESSAGE
         # =================================================
@@ -99,13 +161,15 @@ def get_response():
         if not user_message and not image_file:
 
             return jsonify({
+
                 "response":
                 "कृपया message लिहा किंवा image upload करा. 😊"
+
             })
 
 
         # =================================================
-        # STORE TEXT MESSAGE
+        # STORE USER MESSAGE
         # =================================================
 
         if user_message:
@@ -125,8 +189,13 @@ def get_response():
 
 
         # =================================================
-        # COMMON AI PROMPT
+        # AI PROMPT
         # =================================================
+
+        conversation_text = "\n".join(
+            chat_history
+        )
+
 
         prompt = f"""
 You are NeuraChat AI, a friendly and intelligent AI assistant.
@@ -138,12 +207,12 @@ Rules:
 - Explain coding topics with simple examples.
 - If the user greets you, greet them warmly.
 - Always reply in the same language that the user uses.
-- If the user asks in Marathi, reply only in Marathi.
-- If the user asks in Hindi, reply only in Hindi.
-- If the user asks in English, reply only in English.
+- If the user asks in Marathi, reply in Marathi.
+- If the user asks in Hindi, reply in Hindi.
+- If the user asks in English, reply in English.
 - Answer accurately and clearly.
 - Use emojis only when they fit naturally.
-- If you don't know something, say so honestly instead of making it up.
+- If you don't know something, say so honestly.
 
 If the user asks who created you, reply:
 
@@ -153,13 +222,12 @@ If the user asks why you were developed, reply:
 
 "माझी निर्मिती Ashwini Khokale आणि Prajakta Wani यांनी विद्यार्थ्यांना शिक्षण, Coding, General Knowledge आणि दैनंदिन प्रश्नांमध्ये मदत करण्यासाठी एका मैत्रीपूर्ण आणि बहुभाषिक AI Chatbot म्हणून केली आहे."
 
-- Never say you were developed by OpenAI or Google.
-- Explain that you use Google's Gemini API, but the NeuraChat AI application itself was developed by Ashwini Khokale and Prajakta Wani.
+- Never say that NeuraChat AI itself was developed by OpenAI or Google.
+- You may explain that NeuraChat AI uses Google's Gemini API.
 
 Conversation:
 
-{" ".join(chat_history)}
-
+{conversation_text}
 """
 
 
@@ -169,9 +237,12 @@ Conversation:
 
         if image_file:
 
-            # Read image bytes
+            # Read image
 
             image_bytes = image_file.read()
+
+
+            # Get MIME type
 
             mime_type = (
                 image_file.mimetype
@@ -179,15 +250,20 @@ Conversation:
             )
 
 
-            # Create Gemini image part
+            # Create image part
 
             image_part = types.Part.from_bytes(
+
                 data=image_bytes,
+
                 mime_type=mime_type
+
             )
 
 
-            # If user did not write a question
+            # =================================================
+            # IMAGE + QUESTION
+            # =================================================
 
             if user_message:
 
@@ -196,12 +272,17 @@ Conversation:
 
 The user has uploaded an image.
 
-User's question about the image:
+User's question:
 
 {user_message}
 
-Analyze the image carefully and answer the user's question.
+Analyze the uploaded image carefully and answer the user's question.
 """
+
+
+            # =================================================
+            # IMAGE WITHOUT QUESTION
+            # =================================================
 
             else:
 
@@ -210,12 +291,12 @@ Analyze the image carefully and answer the user's question.
 
 The user has uploaded an image.
 
-Analyze the image carefully and describe what you can see.
+Analyze the uploaded image carefully and describe what you can see.
 """
 
 
             # =================================================
-            # GEMINI IMAGE + TEXT
+            # GEMINI IMAGE REQUEST
             # =================================================
 
             response = client.models.generate_content(
@@ -246,7 +327,7 @@ Analyze the image carefully and describe what you can see.
 
 
         # =================================================
-        # GET AI RESPONSE
+        # GET RESPONSE TEXT
         # =================================================
 
         reply = response.text
@@ -274,7 +355,7 @@ Analyze the image carefully and describe what you can see.
 
     # =====================================================
     # ERROR HANDLING
-    # =====================================================
+    # =================================================
 
     except Exception as e:
 
@@ -282,7 +363,12 @@ Analyze the image carefully and describe what you can see.
 
 
         print(
-            "================ GEMINI ERROR ================",
+            "==============================================",
+            flush=True
+        )
+
+        print(
+            "GEMINI ERROR:",
             flush=True
         )
 
@@ -292,19 +378,20 @@ Analyze the image carefully and describe what you can see.
         )
 
         print(
-            "================================================",
+            "==============================================",
             flush=True
         )
 
 
         # =================================================
-        # API KEY ERROR
+        # AUTHENTICATION ERROR
         # =================================================
 
         if (
             "401" in error_message
             or "UNAUTHENTICATED" in error_message
             or "API key" in error_message
+            or "authentication" in error_message.lower()
         ):
 
             reply = (
@@ -320,31 +407,33 @@ Analyze the image carefully and describe what you can see.
         elif (
             "404" in error_message
             or "NOT_FOUND" in error_message
+            or "not found" in error_message.lower()
         ):
 
             reply = (
                 "⚠️ Gemini model उपलब्ध नाही. "
-                "कृपया थोड्या वेळाने पुन्हा प्रयत्न करा."
+                "Render Logs मध्ये available models तपासा."
             )
 
 
         # =================================================
-        # LIMIT ERROR
+        # RATE LIMIT
         # =================================================
 
         elif (
             "429" in error_message
             or "RESOURCE_EXHAUSTED" in error_message
+            or "quota" in error_message.lower()
         ):
 
             reply = (
-                "⚠️ सध्या AI service ची limit पूर्ण झाली आहे. "
+                "⚠️ Gemini API ची usage limit पूर्ण झाली आहे. "
                 "कृपया थोड्या वेळाने पुन्हा प्रयत्न करा."
             )
 
 
         # =================================================
-        # SERVER ERROR
+        # SERVER BUSY
         # =================================================
 
         elif (
@@ -384,5 +473,12 @@ Analyze the image carefully and describe what you can see.
 if __name__ == "__main__":
 
     app.run(
-        debug=True
+        host="0.0.0.0",
+        port=int(
+            os.environ.get(
+                "PORT",
+                5000
+            )
+        ),
+        debug=False
     )
