@@ -17,15 +17,47 @@ const uploadBtn = document.getElementById("uploadBtn");
 const imageInput = document.getElementById("imageInput");
 
 const imagePreview = document.getElementById("imagePreview");
+
 const imagePreviewContainer =
     document.getElementById("imagePreviewContainer");
 
 const removeImageBtn =
     document.getElementById("removeImageBtn");
 
-const clearBtn = document.getElementById("clearBtn");
-const newChatBtn = document.getElementById("newChatBtn");
-const voiceBtn = document.getElementById("voiceBtn");
+const clearBtn =
+    document.getElementById("clearBtn");
+
+const newChatBtn =
+    document.getElementById("newChatBtn");
+
+const voiceBtn =
+    document.getElementById("voiceBtn");
+
+
+// ==========================================
+// EXAM ELEMENTS
+// ==========================================
+
+const examModeBtn =
+    document.getElementById("examModeBtn");
+
+const examPanel =
+    document.getElementById("examPanel");
+
+const examTopic =
+    document.getElementById("examTopic");
+
+const examQuestions =
+    document.getElementById("examQuestions");
+
+const startExamBtn =
+    document.getElementById("startExamBtn");
+
+const endExamBtn =
+    document.getElementById("endExamBtn");
+
+const examStatus =
+    document.getElementById("examStatus");
 
 
 // ==========================================
@@ -33,20 +65,26 @@ const voiceBtn = document.getElementById("voiceBtn");
 // ==========================================
 
 let selectedImage = null;
+
 let voiceEnabled = true;
+
+let examActive = false;
 
 
 // ==========================================
-// IMAGE UPLOAD BUTTON
+// IMAGE UPLOAD
 // ==========================================
 
 if (uploadBtn && imageInput) {
 
-    uploadBtn.addEventListener("click", function () {
+    uploadBtn.addEventListener(
+        "click",
+        function () {
 
-        imageInput.click();
+            imageInput.click();
 
-    });
+        }
+    );
 
 }
 
@@ -57,58 +95,66 @@ if (uploadBtn && imageInput) {
 
 if (imageInput) {
 
-    imageInput.addEventListener("change", function () {
+    imageInput.addEventListener(
+        "change",
+        function () {
 
-        const file = this.files[0];
-
-        if (!file) {
-            return;
-        }
-
-
-        // Check image
-
-        if (!file.type.startsWith("image/")) {
-
-            alert("Please select a valid image.");
-
-            this.value = "";
-
-            return;
-        }
+            const file =
+                this.files[0];
 
 
-        selectedImage = file;
+            if (!file) {
 
-
-        // Create preview
-
-        const reader = new FileReader();
-
-
-        reader.onload = function (event) {
-
-            if (imagePreview) {
-
-                imagePreview.src =
-                    event.target.result;
+                return;
 
             }
 
 
-            if (imagePreviewContainer) {
+            if (!file.type.startsWith("image/")) {
 
-                imagePreviewContainer.style.display =
-                    "flex";
+                alert(
+                    "Please select a valid image."
+                );
+
+                this.value = "";
+
+                return;
 
             }
 
-        };
+
+            selectedImage = file;
 
 
-        reader.readAsDataURL(file);
+            const reader =
+                new FileReader();
 
-    });
+
+            reader.onload =
+                function (event) {
+
+                    if (imagePreview) {
+
+                        imagePreview.src =
+                            event.target.result;
+
+                    }
+
+
+                    if (imagePreviewContainer) {
+
+                        imagePreviewContainer.style.display =
+                            "flex";
+
+                    }
+
+                };
+
+
+            reader.readAsDataURL(file);
+
+        }
+    );
 
 }
 
@@ -119,33 +165,36 @@ if (imageInput) {
 
 if (removeImageBtn) {
 
-    removeImageBtn.addEventListener("click", function () {
+    removeImageBtn.addEventListener(
+        "click",
+        function () {
 
-        selectedImage = null;
+            selectedImage = null;
 
 
-        if (imageInput) {
+            if (imageInput) {
 
-            imageInput.value = "";
+                imageInput.value = "";
+
+            }
+
+
+            if (imagePreview) {
+
+                imagePreview.src = "";
+
+            }
+
+
+            if (imagePreviewContainer) {
+
+                imagePreviewContainer.style.display =
+                    "none";
+
+            }
 
         }
-
-
-        if (imagePreview) {
-
-            imagePreview.src = "";
-
-        }
-
-
-        if (imagePreviewContainer) {
-
-            imagePreviewContainer.style.display =
-                "none";
-
-        }
-
-    });
+    );
 
 }
 
@@ -154,27 +203,39 @@ if (removeImageBtn) {
 // ADD MESSAGE
 // ==========================================
 
-function addMessage(sender, message, type) {
+function addMessage(
+    sender,
+    message,
+    type
+) {
 
     const row =
         document.createElement("div");
 
+
     row.className =
-        "message-row " + type + "-row";
+        "message-row " +
+        type +
+        "-row";
 
 
     const messageDiv =
         document.createElement("div");
 
+
     messageDiv.className =
-        "message " + type + "-message";
+        "message " +
+        type +
+        "-message";
 
 
     const name =
         document.createElement("div");
 
+
     name.className =
         "message-name";
+
 
     name.textContent =
         sender;
@@ -183,8 +244,10 @@ function addMessage(sender, message, type) {
     const text =
         document.createElement("div");
 
+
     text.className =
         "message-text";
+
 
     text.textContent =
         message;
@@ -192,6 +255,7 @@ function addMessage(sender, message, type) {
 
     const time =
         document.createElement("small");
+
 
     time.textContent =
         new Date().toLocaleTimeString(
@@ -229,12 +293,14 @@ function addImageMessage(file) {
     const row =
         document.createElement("div");
 
+
     row.className =
         "message-row user-row";
 
 
     const messageDiv =
         document.createElement("div");
+
 
     messageDiv.className =
         "message user-message";
@@ -243,8 +309,10 @@ function addImageMessage(file) {
     const name =
         document.createElement("div");
 
+
     name.className =
         "message-name";
+
 
     name.textContent =
         "👤 You";
@@ -253,17 +321,22 @@ function addImageMessage(file) {
     const img =
         document.createElement("img");
 
+
     img.src =
         URL.createObjectURL(file);
+
 
     img.style.maxWidth =
         "250px";
 
+
     img.style.maxHeight =
         "250px";
 
+
     img.style.borderRadius =
         "12px";
+
 
     img.style.marginTop =
         "8px";
@@ -285,7 +358,7 @@ function addImageMessage(file) {
 
 
 // ==========================================
-// TYPING MESSAGE
+// TYPING
 // ==========================================
 
 function showTyping() {
@@ -293,8 +366,10 @@ function showTyping() {
     const row =
         document.createElement("div");
 
+
     row.className =
         "message-row bot-row";
+
 
     row.id =
         "typingMessage";
@@ -303,8 +378,10 @@ function showTyping() {
     const message =
         document.createElement("div");
 
+
     message.className =
         "message bot-message";
+
 
     message.textContent =
         "🤖 NeuraChat AI is thinking...";
@@ -352,16 +429,12 @@ async function sendMessage() {
         userInput.value.trim();
 
 
-    // Nothing to send
-
     if (!message && !selectedImage) {
 
         return;
 
     }
 
-
-    // Show text
 
     if (message) {
 
@@ -374,13 +447,9 @@ async function sendMessage() {
     }
 
 
-    // Save image before clearing
-
     const imageToSend =
         selectedImage;
 
-
-    // Show image
 
     if (imageToSend) {
 
@@ -391,10 +460,7 @@ async function sendMessage() {
     }
 
 
-    // Clear input
-
     userInput.value = "";
-
 
     selectedImage = null;
 
@@ -421,8 +487,6 @@ async function sendMessage() {
     }
 
 
-    // Show typing
-
     showTyping();
 
 
@@ -432,7 +496,7 @@ async function sendMessage() {
 
 
         // ======================================
-        // TEXT ONLY
+        // TEXT
         // ======================================
 
         if (!imageToSend) {
@@ -448,9 +512,11 @@ async function sendMessage() {
                                 "application/json"
                         },
 
-                        body: JSON.stringify({
-                            message: message
-                        })
+                        body:
+                            JSON.stringify({
+                                message:
+                                    message
+                            })
                     }
                 );
 
@@ -458,7 +524,7 @@ async function sendMessage() {
 
 
         // ======================================
-        // IMAGE + TEXT
+        // IMAGE
         // ======================================
 
         else {
@@ -485,7 +551,8 @@ async function sendMessage() {
                     {
                         method: "POST",
 
-                        body: formData
+                        body:
+                            formData
                     }
                 );
 
@@ -511,7 +578,41 @@ async function sendMessage() {
         );
 
 
-        // Speak AI response
+        // ======================================
+        // EXAM STATUS
+        // ======================================
+
+        if (data.exam) {
+
+            examActive = true;
+
+
+            updateExamStatus(
+                data.question_number,
+                data.total_questions,
+                data.score
+            );
+
+        }
+
+
+        if (data.finished) {
+
+            examActive = false;
+
+
+            updateExamStatus(
+                0,
+                data.total_questions,
+                data.score
+            );
+
+
+            endExamBtn.style.display =
+                "none";
+
+        }
+
 
         speakText(reply);
 
@@ -555,7 +656,7 @@ if (sendBtn) {
 
 
 // ==========================================
-// ENTER KEY
+// ENTER
 // ==========================================
 
 if (userInput) {
@@ -572,6 +673,310 @@ if (userInput) {
                 event.preventDefault();
 
                 sendMessage();
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// EXAM MODE BUTTON
+// ==========================================
+
+if (examModeBtn) {
+
+    examModeBtn.addEventListener(
+        "click",
+        function () {
+
+            if (!examPanel) {
+
+                return;
+
+            }
+
+
+            if (
+                examPanel.style.display === "none" ||
+                examPanel.style.display === ""
+            ) {
+
+                examPanel.style.display =
+                    "block";
+
+            }
+
+            else {
+
+                examPanel.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// START EXAM
+// ==========================================
+
+if (startExamBtn) {
+
+    startExamBtn.addEventListener(
+        "click",
+        async function () {
+
+            const topic =
+                examTopic.value.trim();
+
+
+            let questions =
+                parseInt(
+                    examQuestions.value
+                );
+
+
+            if (!topic) {
+
+                alert(
+                    "Please enter exam topic."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                isNaN(questions) ||
+                questions < 1
+            ) {
+
+                questions = 5;
+
+            }
+
+
+            if (questions > 20) {
+
+                questions = 20;
+
+            }
+
+
+            // Clear chat
+
+            chatBox.innerHTML = "";
+
+
+            addMessage(
+                "🤖 NeuraChat AI",
+                "📝 Exam Mode Started!\n📚 Topic: " +
+                topic +
+                "\n📊 Questions: " +
+                questions,
+                "bot"
+            );
+
+
+            showTyping();
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/start_exam",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    topic:
+                                        topic,
+
+                                    questions:
+                                        questions
+                                })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                removeTyping();
+
+
+                addMessage(
+                    "🤖 NeuraChat AI",
+                    data.response,
+                    "bot"
+                );
+
+
+                if (data.exam) {
+
+                    examActive = true;
+
+
+                    updateExamStatus(
+                        data.question_number,
+                        data.total_questions,
+                        data.score
+                    );
+
+
+                    startExamBtn.style.display =
+                        "none";
+
+
+                    endExamBtn.style.display =
+                        "inline-block";
+
+                }
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Exam Error:",
+                    error
+                );
+
+
+                removeTyping();
+
+
+                addMessage(
+                    "🤖 NeuraChat AI",
+                    "⚠️ Could not start exam.",
+                    "bot"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// UPDATE EXAM STATUS
+// ==========================================
+
+function updateExamStatus(
+    question,
+    total,
+    score
+) {
+
+    if (!examStatus) {
+
+        return;
+
+    }
+
+
+    examStatus.style.display =
+        "block";
+
+
+    if (question === 0) {
+
+        examStatus.textContent =
+            "🏆 Final Score: " +
+            score +
+            "/" +
+            total;
+
+        return;
+
+    }
+
+
+    examStatus.textContent =
+        "📝 Question " +
+        question +
+        "/" +
+        total +
+        "    |    🏆 Score: " +
+        score;
+
+}
+
+
+// ==========================================
+// END EXAM
+// ==========================================
+
+if (endExamBtn) {
+
+    endExamBtn.addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/end_exam",
+                        {
+                            method: "POST"
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                addMessage(
+                    "🤖 NeuraChat AI",
+                    data.response,
+                    "bot"
+                );
+
+
+                examActive = false;
+
+
+                endExamBtn.style.display =
+                    "none";
+
+
+                startExamBtn.style.display =
+                    "inline-block";
+
+
+                examStatus.style.display =
+                    "block";
+
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "End Exam Error:",
+                    error
+                );
 
             }
 
@@ -613,8 +1018,6 @@ if (voiceBtn) {
                 voiceBtn.title =
                     "Voice Off";
 
-
-                // Stop current speech
 
                 if (
                     "speechSynthesis"
@@ -667,8 +1070,10 @@ function speakText(text) {
     speech.lang =
         "en-US";
 
+
     speech.rate =
         1;
+
 
     speech.pitch =
         1;
@@ -714,8 +1119,10 @@ if (micBtn) {
             recognition.lang =
                 "en-US";
 
+
             recognition.interimResults =
                 false;
+
 
             recognition.continuous =
                 false;
@@ -772,6 +1179,7 @@ if (clearBtn) {
 
             chatBox.innerHTML = "";
 
+
             addMessage(
                 "🤖 NeuraChat AI",
                 "Chat cleared! How can I help you? 😊",
@@ -796,11 +1204,39 @@ if (newChatBtn) {
 
             chatBox.innerHTML = "";
 
+
             addMessage(
                 "🤖 NeuraChat AI",
                 "New chat started! 😊",
                 "bot"
             );
+
+
+            examActive = false;
+
+
+            if (examStatus) {
+
+                examStatus.style.display =
+                    "none";
+
+            }
+
+
+            if (startExamBtn) {
+
+                startExamBtn.style.display =
+                    "inline-block";
+
+            }
+
+
+            if (endExamBtn) {
+
+                endExamBtn.style.display =
+                    "none";
+
+            }
 
         }
     );
