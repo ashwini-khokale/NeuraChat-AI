@@ -1,40 +1,33 @@
 from flask import Flask, render_template, request, jsonify
 from google import genai
+from google.genai import types
 import os
 from dotenv import load_dotenv
 
+
 app = Flask(__name__)
 
-# Load API Key
+
+# =====================================================
+# LOAD API KEY
+# =====================================================
+
 load_dotenv()
 
-# Get API Key
 api_key = os.getenv("GOOGLE_API_KEY")
 
-# Create Gemini Client
+
+# =====================================================
+# CREATE GEMINI CLIENT
+# =====================================================
+
 client = genai.Client(
     api_key=api_key
 )
 
 
 # =====================================================
-# CHECK AVAILABLE GEMINI MODELS
-# =====================================================
-
-try:
-    print("===== AVAILABLE MODELS =====", flush=True)
-
-    for model in client.models.list():
-        print(model.name, flush=True)
-
-    print("===== END MODELS =====", flush=True)
-
-except Exception as e:
-    print("MODEL LIST ERROR:", str(e), flush=True)
-
-
-# =====================================================
-# STORE CHAT HISTORY
+# CHAT HISTORY
 # =====================================================
 
 chat_history = []
@@ -46,6 +39,7 @@ chat_history = []
 
 @app.route("/")
 def home():
+
     return render_template("index.html")
 
 
@@ -55,6 +49,7 @@ def home():
 
 @app.route("/chat")
 def chat():
+
     return render_template("chat.html")
 
 
@@ -69,39 +64,68 @@ def get_response():
 
     try:
 
-        # Get user message
-        data = request.json
+        # =================================================
+        # CHECK IMAGE
+        # =================================================
 
-        if not data or "message" not in data:
-            return jsonify({
-                "response": "कृपया काहीतरी message लिहा. 😊"
-            })
+        image_file = request.files.get("image")
 
-        user_message = data["message"].strip()
+        # =================================================
+        # GET MESSAGE
+        # =================================================
 
-        if not user_message:
-            return jsonify({
-                "response": "कृपया काहीतरी message लिहा. 😊"
-            })
+        if request.is_json:
 
+            data = request.get_json()
 
-        # Add user message
-        chat_history.append(
-            f"User: {user_message}"
-        )
+            user_message = (
+                data.get("message", "").strip()
+                if data
+                else ""
+            )
 
+        else:
 
-        # Keep only last 50 messages
-        if len(chat_history) > 50:
-            chat_history = chat_history[-50:]
-
-
-        # Create conversation
-        conversation = "\n".join(chat_history)
+            user_message = request.form.get(
+                "message",
+                ""
+            ).strip()
 
 
         # =================================================
-        # PROMPT
+        # EMPTY MESSAGE + NO IMAGE
+        # =================================================
+
+        if not user_message and not image_file:
+
+            return jsonify({
+                "response":
+                "कृपया message लिहा किंवा image upload करा. 😊"
+            })
+
+
+        # =================================================
+        # STORE TEXT MESSAGE
+        # =================================================
+
+        if user_message:
+
+            chat_history.append(
+                f"User: {user_message}"
+            )
+
+
+        # =================================================
+        # KEEP LAST 50 MESSAGES
+        # =================================================
+
+        if len(chat_history) > 50:
+
+            chat_history = chat_history[-50:]
+
+
+        # =================================================
+        # COMMON AI PROMPT
         # =================================================
 
         prompt = f"""
@@ -134,35 +158,117 @@ If the user asks why you were developed, reply:
 
 Conversation:
 
-{conversation}
+{" ".join(chat_history)}
 
-AI:
 """
 
 
         # =================================================
-        # GEMINI API
+        # IMAGE REQUEST
         # =================================================
 
-        response = client.models.generate_content(
-            model="gemini-3.5-flash",
-            contents=prompt
-        )
+        if image_file:
+
+            # Read image bytes
+
+            image_bytes = image_file.read()
+
+            mime_type = (
+                image_file.mimetype
+                or "image/jpeg"
+            )
 
 
-        # Get AI response
+            # Create Gemini image part
+
+            image_part = types.Part.from_bytes(
+                data=image_bytes,
+                mime_type=mime_type
+            )
+
+
+            # If user did not write a question
+
+            if user_message:
+
+                image_prompt = f"""
+{prompt}
+
+The user has uploaded an image.
+
+User's question about the image:
+
+{user_message}
+
+Analyze the image carefully and answer the user's question.
+"""
+
+            else:
+
+                image_prompt = f"""
+{prompt}
+
+The user has uploaded an image.
+
+Analyze the image carefully and describe what you can see.
+"""
+
+
+            # =================================================
+            # GEMINI IMAGE + TEXT
+            # =================================================
+
+            response = client.models.generate_content(
+
+                model="gemini-2.5-flash",
+
+                contents=[
+                    image_part,
+                    image_prompt
+                ]
+
+            )
+
+
+        # =================================================
+        # TEXT ONLY REQUEST
+        # =================================================
+
+        else:
+
+            response = client.models.generate_content(
+
+                model="gemini-2.5-flash",
+
+                contents=prompt
+
+            )
+
+
+        # =================================================
+        # GET AI RESPONSE
+        # =================================================
+
         reply = response.text
 
 
-        # Save AI reply
+        # =================================================
+        # SAVE AI RESPONSE
+        # =================================================
+
         chat_history.append(
             f"AI: {reply}"
         )
 
 
-        # Send response to frontend
+        # =================================================
+        # RETURN RESPONSE
+        # =================================================
+
         return jsonify({
+
             "response": reply
+
         })
 
 
@@ -174,7 +280,7 @@ AI:
 
         error_message = str(e)
 
-        # Show real error in Render Logs
+
         print(
             "================ GEMINI ERROR ================",
             flush=True
@@ -191,8 +297,15 @@ AI:
         )
 
 
-        # 401 Authentication error
-        if "401" in error_message or "UNAUTHENTICATED" in error_message:
+        # =================================================
+        # API KEY ERROR
+        # =================================================
+
+        if (
+            "401" in error_message
+            or "UNAUTHENTICATED" in error_message
+            or "API key" in error_message
+        ):
 
             reply = (
                 "⚠️ Gemini API key authentication problem आहे. "
@@ -200,17 +313,29 @@ AI:
             )
 
 
-        # 404 Model error
-        elif "404" in error_message or "NOT_FOUND" in error_message:
+        # =================================================
+        # MODEL ERROR
+        # =================================================
+
+        elif (
+            "404" in error_message
+            or "NOT_FOUND" in error_message
+        ):
 
             reply = (
-                "⚠️ सध्या वापरलेला Gemini model उपलब्ध नाही. "
+                "⚠️ Gemini model उपलब्ध नाही. "
                 "कृपया थोड्या वेळाने पुन्हा प्रयत्न करा."
             )
 
 
-        # 429 Limit error
-        elif "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
+        # =================================================
+        # LIMIT ERROR
+        # =================================================
+
+        elif (
+            "429" in error_message
+            or "RESOURCE_EXHAUSTED" in error_message
+        ):
 
             reply = (
                 "⚠️ सध्या AI service ची limit पूर्ण झाली आहे. "
@@ -218,8 +343,14 @@ AI:
             )
 
 
-        # 503 Server busy
-        elif "503" in error_message or "UNAVAILABLE" in error_message:
+        # =================================================
+        # SERVER ERROR
+        # =================================================
+
+        elif (
+            "503" in error_message
+            or "UNAVAILABLE" in error_message
+        ):
 
             reply = (
                 "⚠️ Gemini service सध्या busy आहे. "
@@ -227,7 +358,10 @@ AI:
             )
 
 
-        # Other error
+        # =================================================
+        # OTHER ERROR
+        # =================================================
+
         else:
 
             reply = (
@@ -237,7 +371,9 @@ AI:
 
 
         return jsonify({
+
             "response": reply
+
         })
 
 
@@ -246,4 +382,7 @@ AI:
 # =====================================================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+
+    app.run(
+        debug=True
+    )
