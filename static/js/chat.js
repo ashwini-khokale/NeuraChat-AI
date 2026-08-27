@@ -16,23 +16,50 @@ const micBtn = document.getElementById("micBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 const imageInput = document.getElementById("imageInput");
 
-const imagePreview = document.getElementById("imagePreview");
+const pdfBtn = document.getElementById("pdfBtn");
+const pdfInput = document.getElementById("pdfInput");
+
+const imagePreview =
+    document.getElementById("imagePreview");
+
 const imagePreviewContainer =
     document.getElementById("imagePreviewContainer");
 
 const removeImageBtn =
     document.getElementById("removeImageBtn");
 
-const clearBtn = document.getElementById("clearBtn");
-const newChatBtn = document.getElementById("newChatBtn");
-const voiceBtn = document.getElementById("voiceBtn");
+const filePreviewContainer =
+    document.getElementById("filePreviewContainer");
 
-const emojiBtn = document.getElementById("emojiBtn");
-const emojiPicker = document.getElementById("emojiPicker");
-const emojiSearch = document.getElementById("emojiSearch");
-const emojiList = document.getElementById("emojiList");
-const emojiCategories =
-    document.querySelectorAll(".emoji-category");
+const filePreviewName =
+    document.getElementById("filePreviewName");
+
+const filePreviewIcon =
+    document.getElementById("filePreviewIcon");
+
+const removeFileBtn =
+    document.getElementById("removeFileBtn");
+
+const emojiBtn =
+    document.getElementById("emojiBtn");
+
+const emojiPicker =
+    document.getElementById("emojiPicker");
+
+const emojiSearch =
+    document.getElementById("emojiSearch");
+
+const emojiList =
+    document.getElementById("emojiList");
+
+const clearBtn =
+    document.getElementById("clearBtn");
+
+const newChatBtn =
+    document.getElementById("newChatBtn");
+
+const voiceBtn =
+    document.getElementById("voiceBtn");
 
 
 // ==========================================
@@ -40,9 +67,9 @@ const emojiCategories =
 // ==========================================
 
 let selectedImage = null;
-let voiceEnabled = true;
+let selectedPdf = null;
 
-let currentEmojiCategory = "smileys";
+let voiceEnabled = true;
 
 
 // ==========================================
@@ -52,171 +79,128 @@ let currentEmojiCategory = "smileys";
 const emojiData = {
 
     smileys: [
-        "😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇",
-        "🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚",
-        "😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🤩",
-        "🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣",
-        "😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬",
-        "🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗",
-        "🤔","🫣","🤭","🫢","🫡","🤫","🤥","😶","🫠","😐",
-        "😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴",
-        "🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒",
-        "🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻",
-        "💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻",
-        "😼","😽","🙀","😿","😾"
+        "😀","😃","😄","😁","😆","😅","😂","🤣",
+        "😊","😇","🙂","🙃","😉","😌","😍","🥰",
+        "😘","😗","😙","😚","😋","😛","😝","😜",
+        "🤪","🤨","🧐","🤓","😎","🤩","🥳","😏",
+        "😒","😞","😔","😟","😕","🙁","☹️","😣",
+        "😖","😫","😩","🥺","😢","😭","😤","😠",
+        "😡","🤬","🤯","😳","🥵","🥶","😱","😨",
+        "😰","😥","😓","🤗","🤔","🫣","🤭","🫢",
+        "🤫","🤥","😶","🫠","😐","😑","😬","🙄",
+        "😯","😦","😧","😮","😲","🥱","😴","🤤",
+        "😪","😵","🤐","🥴","🤢","🤮","🤧","😷",
+        "🤒","🤕","🤑","🤠","😈","👿","👹","👺",
+        "🤡","💩","👻","💀","☠️","👽","👾","🤖",
+        "🎃","😺","😸","😹","😻","😼","😽","🙀",
+        "😿","😾"
     ],
 
     people: [
-        "👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞",
-        "🤟","🤘","🤙","👈","👉","👆","👇","☝️","👍","👎",
-        "✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏",
-        "✍️","💅","🤳","💪","🫶","👀","👁️","👄","👂","👃",
-        "🧠","🫀","🫁","🦷","🦴","👶","🧒","👦","👧","🧑",
-        "👱","👨","👩","🧔","👵","👴","🧓","🙋","🙆","🙅",
-        "🤦","🤷","💁","🙇","🧘","🏃","🚶","💃","🕺","👯"
+        "👋","🤚","🖐️","✋","🖖","👌","🤏","✌️",
+        "🤞","🤟","🤘","🤙","👈","👉","👆","👇",
+        "☝️","👍","👎","✊","👊","🤛","🤜","👏",
+        "🙌","👐","🤲","🤝","🙏","✍️","💅","🤳",
+        "💪","🦵","🦶","👂","👃","🧠","🫀","🫁",
+        "🦷","🦴","👀","👁️","👅","👄","💋"
     ],
 
     animals: [
-        "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯",
-        "🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊","🐒",
-        "🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇",
-        "🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐜",
-        "🪲","🪳","🕷️","🦂","🐢","🐍","🦎","🦖","🦕","🐙",
-        "🦑","🦀","🦞","🐠","🐟","🐡","🦈","🐬","🐳","🐋",
-        "🐊","🐅","🐆","🦓","🦍","🦧","🐘","🦏","🦛","🐪",
-        "🐫","🦒","🦘","🦬","🐄","🐎","🐖","🐏","🐑","🦙"
+        "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼",
+        "🐨","🐯","🦁","🐮","🐷","🐸","🐵","🙈",
+        "🙉","🙊","🐒","🐔","🐧","🐦","🐤","🦆",
+        "🦅","🦉","🐺","🐗","🐴","🦄","🐝","🐛",
+        "🦋","🐌","🐞","🐜","🕷️","🦂","🐢","🐍",
+        "🦎","🦖","🦕","🐙","🦑","🦀","🐠","🐟",
+        "🐡","🐬","🐳","🐋","🦈","🐊","🐘","🦏",
+        "🦛","🐪","🐫","🦒","🦘","🐃","🐂","🐄",
+        "🐎","🐖","🐏","🐑","🦙","🐐","🦌","🐕",
+        "🐈","🐓","🦃","🦜","🦢","🦩","🐇","🦔"
     ],
 
     food: [
-        "🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐",
-        "🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🥑","🍆",
-        "🥔","🥕","🌽","🌶️","🫑","🥒","🥬","🥦","🧄","🧅",
-        "🍄","🥜","🌰","🍞","🥐","🥖","🥨","🧀","🥚","🍳",
-        "🧈","🥞","🧇","🥓","🥩","🍗","🍖","🌭","🍔","🍟",
-        "🍕","🥪","🥙","🧆","🌮","🌯","🥗","🍝","🍜","🍲",
-        "🍛","🍣","🍱","🥟","🦪","🍚","🍘","🍙","🍰","🎂",
-        "🧁","🍪","🍩","🍫","🍿","🍦","🍧","🍨","🍭","🍬",
-        "☕","🍵","🧃","🥤","🧋","🍶"
+        "🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇",
+        "🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥",
+        "🥝","🍅","🥑","🍆","🥔","🥕","🌽","🌶️",
+        "🥒","🥬","🥦","🧄","🧅","🍄","🥜","🌰",
+        "🍞","🥐","🥖","🧀","🥚","🍳","🧈","🥞",
+        "🧇","🥓","🥩","🍗","🍔","🍟","🍕","🌭",
+        "🥪","🌮","🌯","🥗","🍝","🍜","🍲","🍛",
+        "🍣","🍤","🍚","🍙","🍘","🍥","🥟","🍦",
+        "🍧","🍨","🍩","🍪","🎂","🍰","🧁","🍫",
+        "🍬","🍭","☕","🧃","🥤","🧋"
     ],
 
     activities: [
-        "⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱",
-        "🏓","🏸","🏒","🏑","🥍","🏏","⛳","🏹","🎣","🤿",
-        "🥊","🥋","🎽","🛹","🛷","⛸️","🎿","🏂","🏋️","🤼",
-        "🤸","⛹️","🤺","🏇","🏆","🥇","🥈","🥉","🏅","🎖️",
-        "🎮","🕹️","🎲","🎯","🎳","🎭","🎨","🎬","🎤","🎧",
-        "🎼","🎹","🥁","🎸","🎻","🎺","🎷","🪕","🎪","🎟️"
+        "⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉",
+        "🎱","🏓","🏸","🏒","🏑","🥍","🏏","⛳",
+        "🏹","🎣","🥊","🥋","⛷️","🏂","🏋️","🤸",
+        "🤼","🤽","🤾","🏌️","🏇","🚴","🚵","🏆",
+        "🥇","🥈","🥉","🏅","🎖️","🎯","🎮","🕹️",
+        "🎲","🎳","🎭","🎨","🎬","🎤","🎧","🎼",
+        "🎸","🎹","🥁","🎷","🎺"
     ],
 
     travel: [
-        "🚗","🚕","🚙","🚌","🚎","🏎️","🚓","🚑","🚒","🚐",
-        "🛻","🚚","🚛","🚜","🛵","🏍️","🚲","🛴","🚨","🚔",
-        "🚆","🚇","🚊","🚉","✈️","🛫","🛬","🚁","🚀","🛸",
-        "🚢","⛵","🚤","🗺️","🗿","🗽","🗼","🏰","🏯","🏠",
-        "🏡","🏢","🏥","🏫","🏨","🏪","🏬","🏭","⛪","🕌",
-        "🌍","🌎","🌏","🌋","🏔️","🏖️","🏝️","🏜️","🌅","🌄"
+        "🚗","🚕","🚙","🚌","🚎","🏎️","🚓","🚑",
+        "🚒","🚐","🛻","🚚","🚛","🚜","🛵","🏍️",
+        "🚲","✈️","🚁","🚀","🛸","🚢","⛵","🚤",
+        "🚆","🚇","🚉","🏠","🏢","🏥","🏫","🏨",
+        "🗽","🗼","🏰","🏯","🌋","🏖️","🏝️","🌅",
+        "🌄","🌇","🌃","🌌","🌍","🌎","🌏"
     ],
 
     objects: [
-        "💡","📱","💻","⌨️","🖥️","🖨️","🖱️","💾","💿","📷",
-        "📸","📹","🎥","📺","📻","☎️","📞","🔋","🔌","💡",
-        "📚","📖","📕","📗","📘","📙","📓","📒","📝","✏️",
-        "🖊️","🖋️","📌","📍","📎","✂️","🔒","🔓","🔑","🔨",
-        "⚙️","🔧","🛠️","🔬","🔭","💰","💵","💳","🎁","🎈",
-        "🎉","🎊","📦","✉️","📧","📅","⏰","⌚","🔔","🎵"
+        "💡","🔦","📱","💻","⌨️","🖥️","🖨️","📷",
+        "📺","📻","☎️","📞","🔋","🔌","💿","📀",
+        "📚","📖","📝","✏️","🖊️","📌","📍","📎",
+        "🔑","🔒","🔓","🔔","🎁","🎈","🎉","🧸",
+        "🛒","💰","💎","🔧","🔨","⚙️","🧰","🕰️"
     ],
 
     symbols: [
-        "❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","🩷",
-        "🩵","🩶","💔","❣️","💕","💞","💓","💗","💖","💘",
-        "💝","💟","☮️","✝️","☪️","🕉️","☯️","☢️","☣️","♻️",
-        "✅","❌","⭕","❗","❓","‼️","⁉️","⚠️","🚫","💯",
-        "🔥","✨","⭐","🌟","💫","💥","💦","💨","🎯","✔️",
-        "➕","➖","✖️","➗","♾️","🔴","🟠","🟡","🟢","🔵",
-        "🟣","⚫","⚪","🟤"
+        "❤️","🧡","💛","💚","💙","💜","🖤","🤍",
+        "🤎","💔","❣️","💕","💞","💓","💗","💖",
+        "💘","💝","💟","☮️","✝️","☪️","🕉️","☯️",
+        "☢️","☣️","✅","❌","❗","❓","‼️","⁉️",
+        "⭐","🌟","✨","💫","🔥","💯","💥","💦",
+        "💨","🎵","🎶","✔️","➕","➖","➡️","⬅️"
     ],
 
     flags: [
-        "🇮🇳","🇺🇸","🇬🇧","🇨🇦","🇦🇺","🇯🇵","🇨🇳","🇰🇷","🇩🇪",
-        "🇫🇷","🇮🇹","🇪🇸","🇧🇷","🇷🇺","🇦🇪","🇸🇦","🇸🇬","🇳🇵",
-        "🇵🇰","🇧🇩","🇱🇰","🇳🇿","🇿🇦","🇮🇩","🇲🇾","🇹🇭","🇻🇳",
-        "🇵🇭","🇲🇽","🇦🇷","🇵🇹","🇳🇱","🇨🇭","🇸🇪","🇳🇴","🇩🇰",
-        "🇫🇮","🇮🇪","🇬🇷","🇹🇷","🇮🇱","🇪🇬","🇳🇬","🇰🇪","🇺🇦"
+        "🇮🇳","🇺🇸","🇬🇧","🇨🇦","🇦🇺","🇯🇵","🇨🇳",
+        "🇰🇷","🇫🇷","🇩🇪","🇮🇹","🇪🇸","🇧🇷","🇷🇺",
+        "🇦🇪","🇸🇬","🇳🇵","🇱🇰","🇵🇰","🇧🇩"
     ]
 
 };
 
 
 // ==========================================
-// EMOJI SEARCH KEYWORDS
+// SHOW EMOJIS
 // ==========================================
 
-const emojiKeywords = {
+function showEmojis(category = "smileys") {
 
-    "😀": "grinning happy smile",
-    "😂": "laugh laughing funny",
-    "🤣": "rofl laugh funny",
-    "😊": "happy smile",
-    "😍": "love heart",
-    "🥰": "love happy",
-    "😘": "kiss",
-    "😎": "cool",
-    "🤔": "think thinking",
-    "😭": "cry crying sad",
-    "😢": "sad cry",
-    "😡": "angry",
-    "😴": "sleep sleeping",
-    "🤗": "hug",
-    "👍": "thumb up good yes",
-    "👎": "thumb down no",
-    "👏": "clap",
-    "🙏": "pray please thanks",
-    "❤️": "heart love",
-    "🔥": "fire hot",
-    "⭐": "star",
-    "🎉": "party celebration",
-    "🐶": "dog puppy",
-    "🐱": "cat",
-    "🍕": "pizza food",
-    "🍔": "burger food",
-    "☕": "coffee",
-    "⚽": "football soccer",
-    "🏀": "basketball",
-    "🚗": "car",
-    "✈️": "airplane flight",
-    "📱": "phone mobile",
-    "💻": "computer laptop",
-    "📚": "book study education",
-    "💡": "idea light bulb",
-    "🎤": "microphone music"
-};
-
-
-// ==========================================
-// RENDER EMOJIS
-// ==========================================
-
-function renderEmojis(list) {
-
-    if (!emojiList) {
-        return;
-    }
+    if (!emojiList) return;
 
     emojiList.innerHTML = "";
 
-    list.forEach(function (emoji) {
+    const emojis =
+        emojiData[category] || [];
+
+    emojis.forEach(function (emoji) {
 
         const button =
             document.createElement("button");
 
         button.type = "button";
 
-        button.className = "emoji-item";
+        button.className =
+            "emoji-item";
 
-        button.textContent = emoji;
-
-        button.title =
-            emojiKeywords[emoji] || emoji;
+        button.textContent =
+            emoji;
 
         button.addEventListener(
             "click",
@@ -240,9 +224,7 @@ function renderEmojis(list) {
 
 function insertEmoji(emoji) {
 
-    if (!userInput) {
-        return;
-    }
+    if (!userInput) return;
 
     const start =
         userInput.selectionStart;
@@ -254,28 +236,24 @@ function insertEmoji(emoji) {
         userInput.value;
 
     userInput.value =
-        text.substring(0, start) +
-        emoji +
-        text.substring(end);
-
-    const newPosition =
-        start + emoji.length;
+        text.substring(0, start)
+        + emoji
+        + text.substring(end);
 
     userInput.focus();
 
-    userInput.setSelectionRange(
-        newPosition,
-        newPosition
-    );
+    userInput.selectionStart =
+        userInput.selectionEnd =
+        start + emoji.length;
 
 }
 
 
 // ==========================================
-// OPEN / CLOSE EMOJI PICKER
+// EMOJI BUTTON
 // ==========================================
 
-if (emojiBtn && emojiPicker) {
+if (emojiBtn) {
 
     emojiBtn.addEventListener(
         "click",
@@ -283,25 +261,20 @@ if (emojiBtn && emojiPicker) {
 
             event.stopPropagation();
 
-            emojiPicker.classList.toggle(
-                "show"
-            );
-
             if (
-                emojiPicker.classList.contains(
-                    "show"
-                )
+                emojiPicker.style.display ===
+                "block"
             ) {
 
-                renderEmojis(
-                    emojiData[currentEmojiCategory]
-                );
+                emojiPicker.style.display =
+                    "none";
 
-                if (emojiSearch) {
+            } else {
 
-                    emojiSearch.focus();
+                emojiPicker.style.display =
+                    "block";
 
-                }
+                showEmojis("smileys");
 
             }
 
@@ -315,45 +288,38 @@ if (emojiBtn && emojiPicker) {
 // CATEGORY BUTTONS
 // ==========================================
 
-emojiCategories.forEach(
-    function (button) {
+document
+    .querySelectorAll(".emoji-category")
+    .forEach(function (button) {
 
         button.addEventListener(
             "click",
             function () {
 
-                emojiCategories.forEach(
-                    function (btn) {
+                document
+                    .querySelectorAll(
+                        ".emoji-category"
+                    )
+                    .forEach(function (btn) {
 
                         btn.classList.remove(
                             "active"
                         );
 
-                    }
-                );
+                    });
 
                 button.classList.add(
                     "active"
                 );
 
-                currentEmojiCategory =
-                    button.dataset.category;
-
-                if (emojiSearch) {
-
-                    emojiSearch.value = "";
-
-                }
-
-                renderEmojis(
-                    emojiData[currentEmojiCategory]
+                showEmojis(
+                    button.dataset.category
                 );
 
             }
         );
 
-    }
-);
+    });
 
 
 // ==========================================
@@ -366,54 +332,63 @@ if (emojiSearch) {
         "input",
         function () {
 
-            const query =
+            const search =
                 emojiSearch.value
-                    .toLowerCase()
-                    .trim();
+                    .trim()
+                    .toLowerCase();
 
-            if (!query) {
+            emojiList.innerHTML = "";
 
-                renderEmojis(
-                    emojiData[currentEmojiCategory]
-                );
+            let allEmojis = [];
+
+            Object.values(
+                emojiData
+            ).forEach(function (list) {
+
+                allEmojis =
+                    allEmojis.concat(list);
+
+            });
+
+            if (!search) {
+
+                showEmojis("smileys");
 
                 return;
 
             }
 
-            let results = [];
+            allEmojis.forEach(
+                function (emoji) {
 
-            Object.keys(emojiData).forEach(
-                function (category) {
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
 
-                    emojiData[category].forEach(
-                        function (emoji) {
+                    button.type = "button";
 
-                            const keyword =
-                                emojiKeywords[emoji] || "";
+                    button.className =
+                        "emoji-item";
 
-                            if (
-                                keyword
-                                    .toLowerCase()
-                                    .includes(query)
-                            ) {
+                    button.textContent =
+                        emoji;
 
-                                results.push(
-                                    emoji
-                                );
+                    button.addEventListener(
+                        "click",
+                        function () {
 
-                            }
+                            insertEmoji(emoji);
 
                         }
                     );
 
+                    emojiList.appendChild(
+                        button
+                    );
+
                 }
             );
-
-            results =
-                [...new Set(results)];
-
-            renderEmojis(results);
 
         }
     );
@@ -436,9 +411,8 @@ document.addEventListener(
             !emojiBtn.contains(event.target)
         ) {
 
-            emojiPicker.classList.remove(
-                "show"
-            );
+            emojiPicker.style.display =
+                "none";
 
         }
 
@@ -474,13 +448,16 @@ if (imageInput) {
         "change",
         function () {
 
-            const file = this.files[0];
+            const file =
+                this.files[0];
 
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
-            if (!file.type.startsWith("image/")) {
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
 
                 alert(
                     "Please select a valid image."
@@ -507,9 +484,12 @@ if (imageInput) {
 
                     }
 
-                    if (imagePreviewContainer) {
+                    if (
+                        imagePreviewContainer
+                    ) {
 
-                        imagePreviewContainer.style.display =
+                        imagePreviewContainer
+                            .style.display =
                             "flex";
 
                     }
@@ -548,9 +528,132 @@ if (removeImageBtn) {
 
             }
 
-            if (imagePreviewContainer) {
+            if (
+                imagePreviewContainer
+            ) {
 
-                imagePreviewContainer.style.display =
+                imagePreviewContainer
+                    .style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// PDF BUTTON
+// ==========================================
+
+if (pdfBtn && pdfInput) {
+
+    pdfBtn.addEventListener(
+        "click",
+        function () {
+
+            pdfInput.click();
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// PDF SELECT
+// ==========================================
+
+if (pdfInput) {
+
+    pdfInput.addEventListener(
+        "change",
+        function () {
+
+            const file =
+                this.files[0];
+
+            if (!file) return;
+
+            if (
+                file.type !== "application/pdf"
+                &&
+                !file.name
+                    .toLowerCase()
+                    .endsWith(".pdf")
+            ) {
+
+                alert(
+                    "Please select a valid PDF file."
+                );
+
+                this.value = "";
+
+                return;
+
+            }
+
+            selectedPdf = file;
+
+            if (filePreviewName) {
+
+                filePreviewName.textContent =
+                    file.name;
+
+            }
+
+            if (filePreviewIcon) {
+
+                filePreviewIcon.textContent =
+                    "📄";
+
+            }
+
+            if (filePreviewContainer) {
+
+                filePreviewContainer
+                    .style.display =
+                    "flex";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// REMOVE PDF
+// ==========================================
+
+if (removeFileBtn) {
+
+    removeFileBtn.addEventListener(
+        "click",
+        function () {
+
+            selectedPdf = null;
+
+            if (pdfInput) {
+
+                pdfInput.value = "";
+
+            }
+
+            if (filePreviewName) {
+
+                filePreviewName.textContent =
+                    "";
+
+            }
+
+            if (filePreviewContainer) {
+
+                filePreviewContainer
+                    .style.display =
                     "none";
 
             }
@@ -575,17 +678,17 @@ function addMessage(
         document.createElement("div");
 
     row.className =
-        "message-row " +
-        type +
-        "-row";
+        "message-row "
+        + type
+        + "-row";
 
     const messageDiv =
         document.createElement("div");
 
     messageDiv.className =
-        "message " +
-        type +
-        "-message";
+        "message "
+        + type
+        + "-message";
 
     const name =
         document.createElement("div");
@@ -618,9 +721,7 @@ function addMessage(
         );
 
     messageDiv.appendChild(name);
-
     messageDiv.appendChild(text);
-
     messageDiv.appendChild(time);
 
     row.appendChild(messageDiv);
@@ -679,8 +780,56 @@ function addImageMessage(file) {
         "8px";
 
     messageDiv.appendChild(name);
-
     messageDiv.appendChild(img);
+
+    row.appendChild(messageDiv);
+
+    chatBox.appendChild(row);
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+// ==========================================
+// ADD PDF MESSAGE
+// ==========================================
+
+function addPdfMessage(file) {
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "message-row user-row";
+
+    const messageDiv =
+        document.createElement("div");
+
+    messageDiv.className =
+        "message user-message";
+
+    const name =
+        document.createElement("div");
+
+    name.className =
+        "message-name";
+
+    name.textContent =
+        "👤 You";
+
+    const pdfBox =
+        document.createElement("div");
+
+    pdfBox.className =
+        "pdf-message";
+
+    pdfBox.textContent =
+        "📄 " + file.name;
+
+    messageDiv.appendChild(name);
+    messageDiv.appendChild(pdfBox);
 
     row.appendChild(messageDiv);
 
@@ -755,11 +904,18 @@ async function sendMessage() {
     const message =
         userInput.value.trim();
 
-    if (!message && !selectedImage) {
+    if (
+        !message &&
+        !selectedImage &&
+        !selectedPdf
+    ) {
 
         return;
 
     }
+
+
+    // Show text
 
     if (message) {
 
@@ -771,8 +927,17 @@ async function sendMessage() {
 
     }
 
+
+    // Save files
+
     const imageToSend =
         selectedImage;
+
+    const pdfToSend =
+        selectedPdf;
+
+
+    // Show image
 
     if (imageToSend) {
 
@@ -782,15 +947,38 @@ async function sendMessage() {
 
     }
 
+
+    // Show PDF
+
+    if (pdfToSend) {
+
+        addPdfMessage(
+            pdfToSend
+        );
+
+    }
+
+
+    // Clear input
+
     userInput.value = "";
 
     selectedImage = null;
+    selectedPdf = null;
+
 
     if (imageInput) {
 
         imageInput.value = "";
 
     }
+
+    if (pdfInput) {
+
+        pdfInput.value = "";
+
+    }
+
 
     if (imagePreview) {
 
@@ -800,31 +988,46 @@ async function sendMessage() {
 
     if (imagePreviewContainer) {
 
-        imagePreviewContainer.style.display =
+        imagePreviewContainer
+            .style.display =
             "none";
 
     }
 
-    if (emojiPicker) {
 
-        emojiPicker.classList.remove(
-            "show"
-        );
+    if (filePreviewContainer) {
+
+        filePreviewContainer
+            .style.display =
+            "none";
 
     }
 
+
+    // Typing
+
     showTyping();
+
 
     try {
 
         let response;
 
-        if (!imageToSend) {
+
+        // ======================================
+        // TEXT ONLY
+        // ======================================
+
+        if (
+            !imageToSend &&
+            !pdfToSend
+        ) {
 
             response =
                 await fetch(
                     "/get_response",
                     {
+
                         method: "POST",
 
                         headers: {
@@ -832,13 +1035,21 @@ async function sendMessage() {
                                 "application/json"
                         },
 
-                        body: JSON.stringify({
-                            message: message
-                        })
+                        body:
+                            JSON.stringify({
+                                message:
+                                    message
+                            })
+
                     }
                 );
 
         }
+
+
+        // ======================================
+        // FILE REQUEST
+        // ======================================
 
         else {
 
@@ -850,21 +1061,45 @@ async function sendMessage() {
                 message
             );
 
-            formData.append(
-                "image",
-                imageToSend
-            );
+
+            if (imageToSend) {
+
+                formData.append(
+                    "image",
+                    imageToSend
+                );
+
+            }
+
+
+            if (pdfToSend) {
+
+                formData.append(
+                    "pdf",
+                    pdfToSend
+                );
+
+            }
+
 
             response =
                 await fetch(
                     "/get_response",
                     {
+
                         method: "POST",
+
                         body: formData
+
                     }
                 );
 
         }
+
+
+        // ======================================
+        // RESPONSE
+        // ======================================
 
         const data =
             await response.json();
@@ -884,6 +1119,7 @@ async function sendMessage() {
         speakText(reply);
 
     }
+
 
     catch (error) {
 
@@ -1000,19 +1236,11 @@ if (voiceBtn) {
 
 function speakText(text) {
 
-    if (!voiceEnabled) {
-
-        return;
-
-    }
+    if (!voiceEnabled) return;
 
     if (
         !("speechSynthesis" in window)
-    ) {
-
-        return;
-
-    }
+    ) return;
 
     window.speechSynthesis.cancel();
 
@@ -1076,13 +1304,18 @@ if (micBtn) {
             micBtn.textContent =
                 "🔴";
 
+            micBtn.classList.add(
+                "listening"
+            );
+
             recognition.start();
 
             recognition.onresult =
                 function (event) {
 
                     userInput.value =
-                        event.results[0][0].transcript;
+                        event.results[0][0]
+                            .transcript;
 
                 };
 
@@ -1092,6 +1325,10 @@ if (micBtn) {
                     micBtn.textContent =
                         "🎤";
 
+                    micBtn.classList.remove(
+                        "listening"
+                    );
+
                 };
 
             recognition.onerror =
@@ -1099,6 +1336,10 @@ if (micBtn) {
 
                     micBtn.textContent =
                         "🎤";
+
+                    micBtn.classList.remove(
+                        "listening"
+                    );
 
                 };
 
@@ -1154,3 +1395,10 @@ if (newChatBtn) {
     );
 
 }
+
+
+// ==========================================
+// INITIAL EMOJIS
+// ==========================================
+
+showEmojis("smileys");
