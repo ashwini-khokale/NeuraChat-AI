@@ -4,9 +4,7 @@ from google.genai import types
 import os
 from dotenv import load_dotenv
 
-
 app = Flask(__name__)
-
 
 # =====================================================
 # LOAD API KEY
@@ -19,7 +17,6 @@ api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     print("WARNING: GOOGLE_API_KEY is not set!", flush=True)
 
-
 # =====================================================
 # CREATE GEMINI CLIENT
 # =====================================================
@@ -27,7 +24,6 @@ if not api_key:
 client = genai.Client(
     api_key=api_key
 )
-
 
 # =====================================================
 # LIST AVAILABLE GEMINI MODELS
@@ -37,7 +33,6 @@ print("==============================================", flush=True)
 print("AVAILABLE GEMINI MODELS:", flush=True)
 
 try:
-
     for model in client.models.list():
 
         supported_actions = (
@@ -46,14 +41,9 @@ try:
         )
 
         if "generateContent" in supported_actions:
-
-            print(
-                model.name,
-                flush=True
-            )
+            print(model.name, flush=True)
 
 except Exception as e:
-
     print(
         "Could not list Gemini models:",
         str(e),
@@ -62,21 +52,11 @@ except Exception as e:
 
 print("==============================================", flush=True)
 
-
 # =====================================================
 # CHAT HISTORY
 # =====================================================
 
 chat_history = []
-
-
-# =====================================================
-# CURRENT PDF MEMORY
-# =====================================================
-
-current_pdf_bytes = None
-current_pdf_name = None
-
 
 # =====================================================
 # HOME PAGE
@@ -84,9 +64,7 @@ current_pdf_name = None
 
 @app.route("/")
 def home():
-
     return render_template("index.html")
-
 
 # =====================================================
 # CHAT PAGE
@@ -94,9 +72,7 @@ def home():
 
 @app.route("/chat")
 def chat():
-
     return render_template("chat.html")
-
 
 # =====================================================
 # AI RESPONSE
@@ -106,8 +82,6 @@ def chat():
 def get_response():
 
     global chat_history
-    global current_pdf_bytes
-    global current_pdf_name
 
     try:
 
@@ -117,13 +91,11 @@ def get_response():
 
         image_file = request.files.get("image")
 
-
         # =================================================
         # GET PDF
         # =================================================
 
         pdf_file = request.files.get("pdf")
-
 
         # =================================================
         # GET MESSAGE
@@ -146,9 +118,8 @@ def get_response():
                 ""
             ).strip()
 
-
         # =================================================
-        # CHECK EMPTY REQUEST
+        # EMPTY REQUEST
         # =================================================
 
         if (
@@ -158,15 +129,12 @@ def get_response():
         ):
 
             return jsonify({
-
                 "response":
-                "कृपया message लिहा, image upload करा किंवा PDF upload करा. 😊"
-
+                "कृपया message लिहा किंवा image/PDF upload करा. 😊"
             })
 
-
         # =================================================
-        # SAVE USER MESSAGE
+        # STORE USER MESSAGE
         # =================================================
 
         if user_message:
@@ -174,7 +142,6 @@ def get_response():
             chat_history.append(
                 f"User: {user_message}"
             )
-
 
         # =================================================
         # KEEP LAST 50 MESSAGES
@@ -184,7 +151,6 @@ def get_response():
 
             chat_history = chat_history[-50:]
 
-
         # =================================================
         # CONVERSATION
         # =================================================
@@ -193,9 +159,8 @@ def get_response():
             chat_history
         )
 
-
         # =================================================
-        # MAIN AI PROMPT
+        # AI PROMPT
         # =================================================
 
         prompt = f"""
@@ -212,8 +177,13 @@ Rules:
 - If the user asks in Hindi, reply in Hindi.
 - If the user asks in English, reply in English.
 - Answer accurately and clearly.
-- Use emojis only when they fit naturally.
-- If you don't know something, say so honestly.
+- Use emojis naturally when appropriate.
+- If the user uploads an image, analyze it carefully.
+- If the user uploads a PDF, read and analyze the PDF carefully.
+- If the user asks questions about a PDF, answer using the uploaded PDF.
+- If the user asks to extract questions from a PDF, extract relevant questions from the PDF.
+- Do not invent information that is not present in the uploaded PDF.
+- If the requested information is not available in the PDF, clearly say that.
 
 If the user asks who created you, reply:
 
@@ -231,262 +201,73 @@ Conversation:
 {conversation_text}
 """
 
-
         # =================================================
-        # PDF UPLOAD
-        # =================================================
-
-        if pdf_file:
-
-            filename = pdf_file.filename or ""
-
-            # Check PDF extension
-
-            if not filename.lower().endswith(".pdf"):
-
-                return jsonify({
-
-                    "response":
-                    "⚠️ कृपया फक्त PDF file upload करा."
-
-                })
-
-
-            # Read PDF
-
-            pdf_bytes = pdf_file.read()
-
-
-            # Check empty PDF
-
-            if not pdf_bytes:
-
-                return jsonify({
-
-                    "response":
-                    "⚠️ PDF रिकामी आहे. दुसरी PDF upload करा."
-
-                })
-
-
-            # Save PDF in server memory
-
-            current_pdf_bytes = pdf_bytes
-
-            current_pdf_name = filename
-
-
-            # Create PDF part
-
-            pdf_part = types.Part.from_bytes(
-
-                data=pdf_bytes,
-
-                mime_type="application/pdf"
-
-            )
-
-
-            # =================================================
-            # PDF + QUESTION
-            # =================================================
-
-            if user_message:
-
-                pdf_prompt = f"""
-{prompt}
-
-The user has uploaded a PDF document.
-
-PDF file name:
-{filename}
-
-User's question:
-
-{user_message}
-
-Read and analyze the uploaded PDF carefully.
-
-Answer the user's question using the information
-from the PDF whenever possible.
-
-If the answer is not available in the PDF,
-clearly say that it is not mentioned in the PDF.
-"""
-
-
-            # =================================================
-            # PDF WITHOUT QUESTION
-            # =================================================
-
-            else:
-
-                pdf_prompt = f"""
-{prompt}
-
-The user has uploaded a PDF document.
-
-PDF file name:
-{filename}
-
-Analyze the PDF and give a short useful summary.
-
-Mention:
-- Main topic
-- Important points
-- Important sections
-- What the PDF is mainly about
-"""
-
-
-            # =================================================
-            # GEMINI PDF REQUEST
-            # =================================================
-
-            response = client.models.generate_content(
-
-                model="gemini-3.6-flash",
-
-                contents=[
-                    pdf_part,
-                    pdf_prompt
-                ]
-
-            )
-
-
-        # =================================================
-        # ASK QUESTION ABOUT PREVIOUS PDF
+        # CONTENTS
         # =================================================
 
-        elif current_pdf_bytes and user_message:
-
-            pdf_part = types.Part.from_bytes(
-
-                data=current_pdf_bytes,
-
-                mime_type="application/pdf"
-
-            )
-
-
-            pdf_prompt = f"""
-{prompt}
-
-The user previously uploaded this PDF:
-
-{current_pdf_name}
-
-Use the PDF as the main source for answering the
-user's question.
-
-User's current question:
-
-{user_message}
-
-Answer clearly and accurately.
-
-If the answer is not present in the PDF,
-say that it is not mentioned in the PDF.
-"""
-
-
-            response = client.models.generate_content(
-
-                model="gemini-3.6-flash",
-
-                contents=[
-                    pdf_part,
-                    pdf_prompt
-                ]
-
-            )
-
+        contents = []
 
         # =================================================
-        # IMAGE REQUEST
+        # IMAGE
         # =================================================
 
-        elif image_file:
+        if image_file:
 
             image_bytes = image_file.read()
-
 
             mime_type = (
                 image_file.mimetype
                 or "image/jpeg"
             )
 
-
             image_part = types.Part.from_bytes(
-
                 data=image_bytes,
-
                 mime_type=mime_type
-
             )
 
+            contents.append(image_part)
 
-            if user_message:
+        # =================================================
+        # PDF
+        # =================================================
 
-                image_prompt = f"""
-{prompt}
+        if pdf_file:
 
-The user has uploaded an image.
+            pdf_bytes = pdf_file.read()
 
-User's question:
-
-{user_message}
-
-Analyze the uploaded image carefully
-and answer the user's question.
-"""
-
-            else:
-
-                image_prompt = f"""
-{prompt}
-
-The user has uploaded an image.
-
-Analyze the uploaded image carefully
-and describe what you can see.
-"""
-
-
-            response = client.models.generate_content(
-
-                model="gemini-3.6-flash",
-
-                contents=[
-                    image_part,
-                    image_prompt
-                ]
-
+            pdf_part = types.Part.from_bytes(
+                data=pdf_bytes,
+                mime_type="application/pdf"
             )
 
+            contents.append(pdf_part)
 
         # =================================================
-        # TEXT ONLY REQUEST
+        # PROMPT
         # =================================================
 
-        else:
-
-            response = client.models.generate_content(
-
-                model="gemini-3.6-flash",
-
-                contents=prompt
-
-            )
-
+        contents.append(prompt)
 
         # =================================================
-        # GET RESPONSE TEXT
+        # GEMINI REQUEST
+        # =================================================
+
+        response = client.models.generate_content(
+
+            model="gemini-3.6-flash",
+
+            contents=contents
+        )
+
+        # =================================================
+        # RESPONSE TEXT
         # =================================================
 
         reply = response.text
 
+        if not reply:
+
+            reply = "⚠️ मला response मिळाला नाही."
 
         # =================================================
         # SAVE AI RESPONSE
@@ -496,17 +277,13 @@ and describe what you can see.
             f"AI: {reply}"
         )
 
-
         # =================================================
-        # RETURN RESPONSE
+        # RETURN
         # =================================================
 
         return jsonify({
-
             "response": reply
-
         })
-
 
     # =====================================================
     # ERROR HANDLING
@@ -515,7 +292,6 @@ and describe what you can see.
     except Exception as e:
 
         error_message = str(e)
-
 
         print(
             "==============================================",
@@ -537,9 +313,8 @@ and describe what you can see.
             flush=True
         )
 
-
         # =================================================
-        # AUTHENTICATION ERROR
+        # API KEY ERROR
         # =================================================
 
         if (
@@ -551,9 +326,8 @@ and describe what you can see.
 
             reply = (
                 "⚠️ Gemini API key authentication problem आहे. "
-                "कृपया API key तपासा."
+                "Render Environment Variables मध्ये GOOGLE_API_KEY तपासा."
             )
-
 
         # =================================================
         # MODEL ERROR
@@ -570,7 +344,6 @@ and describe what you can see.
                 "Render Logs मध्ये available models तपासा."
             )
 
-
         # =================================================
         # RATE LIMIT
         # =================================================
@@ -586,7 +359,6 @@ and describe what you can see.
                 "कृपया थोड्या वेळाने पुन्हा प्रयत्न करा."
             )
 
-
         # =================================================
         # SERVER BUSY
         # =================================================
@@ -601,21 +373,19 @@ and describe what you can see.
                 "कृपया काही सेकंदांनी पुन्हा प्रयत्न करा."
             )
 
-
         # =================================================
-        # PDF ERROR
+        # PDF / FILE ERROR
         # =================================================
 
         elif (
             "pdf" in error_message.lower()
-            or "mime" in error_message.lower()
+            or "file" in error_message.lower()
         ):
 
             reply = (
                 "⚠️ PDF process करताना problem आली. "
-                "कृपया दुसरी PDF try करा."
+                "कृपया PDF पुन्हा upload करून try करा."
             )
-
 
         # =================================================
         # OTHER ERROR
@@ -628,11 +398,8 @@ and describe what you can see.
                 "Please try again."
             )
 
-
         return jsonify({
-
             "response": reply
-
         })
 
 
@@ -643,16 +410,12 @@ and describe what you can see.
 if __name__ == "__main__":
 
     app.run(
-
         host="0.0.0.0",
-
         port=int(
             os.environ.get(
                 "PORT",
                 5000
             )
         ),
-
         debug=False
-
     )
