@@ -8,56 +8,31 @@
 // ==========================================
 
 const chatBox = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
 
-const userInput =
-    document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const micBtn = document.getElementById("micBtn");
 
-const sendBtn =
-    document.getElementById("sendBtn");
+const uploadBtn = document.getElementById("uploadBtn");
+const imageInput = document.getElementById("imageInput");
 
-const micBtn =
-    document.getElementById("micBtn");
+const imagePreview = document.getElementById("imagePreview");
+const imagePreviewContainer =
+    document.getElementById("imagePreviewContainer");
 
-const uploadBtn =
-    document.getElementById("uploadBtn");
+const removeImageBtn =
+    document.getElementById("removeImageBtn");
 
-const imageInput =
-    document.getElementById("imageInput");
+const clearBtn = document.getElementById("clearBtn");
+const newChatBtn = document.getElementById("newChatBtn");
+const voiceBtn = document.getElementById("voiceBtn");
 
-const pdfBtn =
-    document.getElementById("pdfBtn");
-
-const pdfInput =
-    document.getElementById("pdfInput");
-
-const filePreviewContainer =
-    document.getElementById(
-        "filePreviewContainer"
-    );
-
-const imagePreview =
-    document.getElementById("imagePreview");
-
-const imagePreviewBox =
-    document.getElementById("imagePreviewBox");
-
-const pdfPreviewBox =
-    document.getElementById("pdfPreviewBox");
-
-const pdfFileName =
-    document.getElementById("pdfFileName");
-
-const removeFileBtn =
-    document.getElementById("removeFileBtn");
-
-const clearBtn =
-    document.getElementById("clearBtn");
-
-const newChatBtn =
-    document.getElementById("newChatBtn");
-
-const voiceBtn =
-    document.getElementById("voiceBtn");
+const emojiBtn = document.getElementById("emojiBtn");
+const emojiPicker = document.getElementById("emojiPicker");
+const emojiSearch = document.getElementById("emojiSearch");
+const emojiList = document.getElementById("emojiList");
+const emojiCategories =
+    document.querySelectorAll(".emoji-category");
 
 
 // ==========================================
@@ -65,14 +40,414 @@ const voiceBtn =
 // ==========================================
 
 let selectedImage = null;
-
-let selectedPdf = null;
-
 let voiceEnabled = true;
+
+let currentEmojiCategory = "smileys";
 
 
 // ==========================================
-// IMAGE UPLOAD BUTTON
+// EMOJI DATA
+// ==========================================
+
+const emojiData = {
+
+    smileys: [
+        "😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇",
+        "🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚",
+        "😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🤩",
+        "🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣",
+        "😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬",
+        "🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗",
+        "🤔","🫣","🤭","🫢","🫡","🤫","🤥","😶","🫠","😐",
+        "😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴",
+        "🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒",
+        "🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻",
+        "💀","☠️","👽","👾","🤖","🎃","😺","😸","😹","😻",
+        "😼","😽","🙀","😿","😾"
+    ],
+
+    people: [
+        "👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞",
+        "🤟","🤘","🤙","👈","👉","👆","👇","☝️","👍","👎",
+        "✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏",
+        "✍️","💅","🤳","💪","🫶","👀","👁️","👄","👂","👃",
+        "🧠","🫀","🫁","🦷","🦴","👶","🧒","👦","👧","🧑",
+        "👱","👨","👩","🧔","👵","👴","🧓","🙋","🙆","🙅",
+        "🤦","🤷","💁","🙇","🧘","🏃","🚶","💃","🕺","👯"
+    ],
+
+    animals: [
+        "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯",
+        "🦁","🐮","🐷","🐽","🐸","🐵","🙈","🙉","🙊","🐒",
+        "🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇",
+        "🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐜",
+        "🪲","🪳","🕷️","🦂","🐢","🐍","🦎","🦖","🦕","🐙",
+        "🦑","🦀","🦞","🐠","🐟","🐡","🦈","🐬","🐳","🐋",
+        "🐊","🐅","🐆","🦓","🦍","🦧","🐘","🦏","🦛","🐪",
+        "🐫","🦒","🦘","🦬","🐄","🐎","🐖","🐏","🐑","🦙"
+    ],
+
+    food: [
+        "🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐",
+        "🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🥑","🍆",
+        "🥔","🥕","🌽","🌶️","🫑","🥒","🥬","🥦","🧄","🧅",
+        "🍄","🥜","🌰","🍞","🥐","🥖","🥨","🧀","🥚","🍳",
+        "🧈","🥞","🧇","🥓","🥩","🍗","🍖","🌭","🍔","🍟",
+        "🍕","🥪","🥙","🧆","🌮","🌯","🥗","🍝","🍜","🍲",
+        "🍛","🍣","🍱","🥟","🦪","🍚","🍘","🍙","🍰","🎂",
+        "🧁","🍪","🍩","🍫","🍿","🍦","🍧","🍨","🍭","🍬",
+        "☕","🍵","🧃","🥤","🧋","🍶"
+    ],
+
+    activities: [
+        "⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱",
+        "🏓","🏸","🏒","🏑","🥍","🏏","⛳","🏹","🎣","🤿",
+        "🥊","🥋","🎽","🛹","🛷","⛸️","🎿","🏂","🏋️","🤼",
+        "🤸","⛹️","🤺","🏇","🏆","🥇","🥈","🥉","🏅","🎖️",
+        "🎮","🕹️","🎲","🎯","🎳","🎭","🎨","🎬","🎤","🎧",
+        "🎼","🎹","🥁","🎸","🎻","🎺","🎷","🪕","🎪","🎟️"
+    ],
+
+    travel: [
+        "🚗","🚕","🚙","🚌","🚎","🏎️","🚓","🚑","🚒","🚐",
+        "🛻","🚚","🚛","🚜","🛵","🏍️","🚲","🛴","🚨","🚔",
+        "🚆","🚇","🚊","🚉","✈️","🛫","🛬","🚁","🚀","🛸",
+        "🚢","⛵","🚤","🗺️","🗿","🗽","🗼","🏰","🏯","🏠",
+        "🏡","🏢","🏥","🏫","🏨","🏪","🏬","🏭","⛪","🕌",
+        "🌍","🌎","🌏","🌋","🏔️","🏖️","🏝️","🏜️","🌅","🌄"
+    ],
+
+    objects: [
+        "💡","📱","💻","⌨️","🖥️","🖨️","🖱️","💾","💿","📷",
+        "📸","📹","🎥","📺","📻","☎️","📞","🔋","🔌","💡",
+        "📚","📖","📕","📗","📘","📙","📓","📒","📝","✏️",
+        "🖊️","🖋️","📌","📍","📎","✂️","🔒","🔓","🔑","🔨",
+        "⚙️","🔧","🛠️","🔬","🔭","💰","💵","💳","🎁","🎈",
+        "🎉","🎊","📦","✉️","📧","📅","⏰","⌚","🔔","🎵"
+    ],
+
+    symbols: [
+        "❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","🩷",
+        "🩵","🩶","💔","❣️","💕","💞","💓","💗","💖","💘",
+        "💝","💟","☮️","✝️","☪️","🕉️","☯️","☢️","☣️","♻️",
+        "✅","❌","⭕","❗","❓","‼️","⁉️","⚠️","🚫","💯",
+        "🔥","✨","⭐","🌟","💫","💥","💦","💨","🎯","✔️",
+        "➕","➖","✖️","➗","♾️","🔴","🟠","🟡","🟢","🔵",
+        "🟣","⚫","⚪","🟤"
+    ],
+
+    flags: [
+        "🇮🇳","🇺🇸","🇬🇧","🇨🇦","🇦🇺","🇯🇵","🇨🇳","🇰🇷","🇩🇪",
+        "🇫🇷","🇮🇹","🇪🇸","🇧🇷","🇷🇺","🇦🇪","🇸🇦","🇸🇬","🇳🇵",
+        "🇵🇰","🇧🇩","🇱🇰","🇳🇿","🇿🇦","🇮🇩","🇲🇾","🇹🇭","🇻🇳",
+        "🇵🇭","🇲🇽","🇦🇷","🇵🇹","🇳🇱","🇨🇭","🇸🇪","🇳🇴","🇩🇰",
+        "🇫🇮","🇮🇪","🇬🇷","🇹🇷","🇮🇱","🇪🇬","🇳🇬","🇰🇪","🇺🇦"
+    ]
+
+};
+
+
+// ==========================================
+// EMOJI SEARCH KEYWORDS
+// ==========================================
+
+const emojiKeywords = {
+
+    "😀": "grinning happy smile",
+    "😂": "laugh laughing funny",
+    "🤣": "rofl laugh funny",
+    "😊": "happy smile",
+    "😍": "love heart",
+    "🥰": "love happy",
+    "😘": "kiss",
+    "😎": "cool",
+    "🤔": "think thinking",
+    "😭": "cry crying sad",
+    "😢": "sad cry",
+    "😡": "angry",
+    "😴": "sleep sleeping",
+    "🤗": "hug",
+    "👍": "thumb up good yes",
+    "👎": "thumb down no",
+    "👏": "clap",
+    "🙏": "pray please thanks",
+    "❤️": "heart love",
+    "🔥": "fire hot",
+    "⭐": "star",
+    "🎉": "party celebration",
+    "🐶": "dog puppy",
+    "🐱": "cat",
+    "🍕": "pizza food",
+    "🍔": "burger food",
+    "☕": "coffee",
+    "⚽": "football soccer",
+    "🏀": "basketball",
+    "🚗": "car",
+    "✈️": "airplane flight",
+    "📱": "phone mobile",
+    "💻": "computer laptop",
+    "📚": "book study education",
+    "💡": "idea light bulb",
+    "🎤": "microphone music"
+};
+
+
+// ==========================================
+// RENDER EMOJIS
+// ==========================================
+
+function renderEmojis(list) {
+
+    if (!emojiList) {
+        return;
+    }
+
+    emojiList.innerHTML = "";
+
+    list.forEach(function (emoji) {
+
+        const button =
+            document.createElement("button");
+
+        button.type = "button";
+
+        button.className = "emoji-item";
+
+        button.textContent = emoji;
+
+        button.title =
+            emojiKeywords[emoji] || emoji;
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                insertEmoji(emoji);
+
+            }
+        );
+
+        emojiList.appendChild(button);
+
+    });
+
+}
+
+
+// ==========================================
+// INSERT EMOJI
+// ==========================================
+
+function insertEmoji(emoji) {
+
+    if (!userInput) {
+        return;
+    }
+
+    const start =
+        userInput.selectionStart;
+
+    const end =
+        userInput.selectionEnd;
+
+    const text =
+        userInput.value;
+
+    userInput.value =
+        text.substring(0, start) +
+        emoji +
+        text.substring(end);
+
+    const newPosition =
+        start + emoji.length;
+
+    userInput.focus();
+
+    userInput.setSelectionRange(
+        newPosition,
+        newPosition
+    );
+
+}
+
+
+// ==========================================
+// OPEN / CLOSE EMOJI PICKER
+// ==========================================
+
+if (emojiBtn && emojiPicker) {
+
+    emojiBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+            emojiPicker.classList.toggle(
+                "show"
+            );
+
+            if (
+                emojiPicker.classList.contains(
+                    "show"
+                )
+            ) {
+
+                renderEmojis(
+                    emojiData[currentEmojiCategory]
+                );
+
+                if (emojiSearch) {
+
+                    emojiSearch.focus();
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// CATEGORY BUTTONS
+// ==========================================
+
+emojiCategories.forEach(
+    function (button) {
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                emojiCategories.forEach(
+                    function (btn) {
+
+                        btn.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+                button.classList.add(
+                    "active"
+                );
+
+                currentEmojiCategory =
+                    button.dataset.category;
+
+                if (emojiSearch) {
+
+                    emojiSearch.value = "";
+
+                }
+
+                renderEmojis(
+                    emojiData[currentEmojiCategory]
+                );
+
+            }
+        );
+
+    }
+);
+
+
+// ==========================================
+// EMOJI SEARCH
+// ==========================================
+
+if (emojiSearch) {
+
+    emojiSearch.addEventListener(
+        "input",
+        function () {
+
+            const query =
+                emojiSearch.value
+                    .toLowerCase()
+                    .trim();
+
+            if (!query) {
+
+                renderEmojis(
+                    emojiData[currentEmojiCategory]
+                );
+
+                return;
+
+            }
+
+            let results = [];
+
+            Object.keys(emojiData).forEach(
+                function (category) {
+
+                    emojiData[category].forEach(
+                        function (emoji) {
+
+                            const keyword =
+                                emojiKeywords[emoji] || "";
+
+                            if (
+                                keyword
+                                    .toLowerCase()
+                                    .includes(query)
+                            ) {
+
+                                results.push(
+                                    emoji
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+            results =
+                [...new Set(results)];
+
+            renderEmojis(results);
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// CLOSE EMOJI PICKER
+// ==========================================
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        if (
+            emojiPicker &&
+            emojiBtn &&
+            !emojiPicker.contains(event.target) &&
+            !emojiBtn.contains(event.target)
+        ) {
+
+            emojiPicker.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+);
+
+
+// ==========================================
+// IMAGE UPLOAD
 // ==========================================
 
 if (uploadBtn && imageInput) {
@@ -101,13 +476,9 @@ if (imageInput) {
 
             const file = this.files[0];
 
-
             if (!file) {
-
                 return;
-
             }
-
 
             if (!file.type.startsWith("image/")) {
 
@@ -121,81 +492,31 @@ if (imageInput) {
 
             }
 
-
             selectedImage = file;
 
-            selectedPdf = null;
+            const reader =
+                new FileReader();
 
+            reader.onload =
+                function (event) {
 
-            showImagePreview(file);
+                    if (imagePreview) {
 
-        }
-    );
+                        imagePreview.src =
+                            event.target.result;
 
-}
+                    }
 
+                    if (imagePreviewContainer) {
 
-// ==========================================
-// PDF BUTTON
-// ==========================================
+                        imagePreviewContainer.style.display =
+                            "flex";
 
-if (pdfBtn && pdfInput) {
+                    }
 
-    pdfBtn.addEventListener(
-        "click",
-        function () {
+                };
 
-            pdfInput.click();
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// PDF SELECT
-// ==========================================
-
-if (pdfInput) {
-
-    pdfInput.addEventListener(
-        "change",
-        function () {
-
-            const file = this.files[0];
-
-
-            if (!file) {
-
-                return;
-
-            }
-
-
-            if (
-                file.type !== "application/pdf"
-                &&
-                !file.name.toLowerCase().endsWith(".pdf")
-            ) {
-
-                alert(
-                    "Please select a valid PDF file."
-                );
-
-                this.value = "";
-
-                return;
-
-            }
-
-
-            selectedPdf = file;
-
-            selectedImage = null;
-
-
-            showPdfPreview(file);
+            reader.readAsDataURL(file);
 
         }
     );
@@ -204,117 +525,16 @@ if (pdfInput) {
 
 
 // ==========================================
-// SHOW IMAGE PREVIEW
+// REMOVE IMAGE
 // ==========================================
 
-function showImagePreview(file) {
+if (removeImageBtn) {
 
-    if (!filePreviewContainer) {
-
-        return;
-
-    }
-
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload =
-        function (event) {
-
-            if (imagePreview) {
-
-                imagePreview.src =
-                    event.target.result;
-
-            }
-
-
-            if (imagePreviewBox) {
-
-                imagePreviewBox.style.display =
-                    "block";
-
-            }
-
-
-            if (pdfPreviewBox) {
-
-                pdfPreviewBox.style.display =
-                    "none";
-
-            }
-
-
-            filePreviewContainer.style.display =
-                "flex";
-
-        };
-
-
-    reader.readAsDataURL(file);
-
-}
-
-
-// ==========================================
-// SHOW PDF PREVIEW
-// ==========================================
-
-function showPdfPreview(file) {
-
-    if (!filePreviewContainer) {
-
-        return;
-
-    }
-
-
-    if (imagePreviewBox) {
-
-        imagePreviewBox.style.display =
-            "none";
-
-    }
-
-
-    if (pdfPreviewBox) {
-
-        pdfPreviewBox.style.display =
-            "flex";
-
-    }
-
-
-    if (pdfFileName) {
-
-        pdfFileName.textContent =
-            file.name;
-
-    }
-
-
-    filePreviewContainer.style.display =
-        "flex";
-
-}
-
-
-// ==========================================
-// REMOVE FILE
-// ==========================================
-
-if (removeFileBtn) {
-
-    removeFileBtn.addEventListener(
+    removeImageBtn.addEventListener(
         "click",
         function () {
 
             selectedImage = null;
-
-            selectedPdf = null;
-
 
             if (imageInput) {
 
@@ -322,24 +542,15 @@ if (removeFileBtn) {
 
             }
 
-
-            if (pdfInput) {
-
-                pdfInput.value = "";
-
-            }
-
-
             if (imagePreview) {
 
                 imagePreview.src = "";
 
             }
 
+            if (imagePreviewContainer) {
 
-            if (filePreviewContainer) {
-
-                filePreviewContainer.style.display =
+                imagePreviewContainer.style.display =
                     "none";
 
             }
@@ -363,50 +574,39 @@ function addMessage(
     const row =
         document.createElement("div");
 
-
     row.className =
         "message-row " +
         type +
         "-row";
 
-
     const messageDiv =
         document.createElement("div");
-
 
     messageDiv.className =
         "message " +
         type +
         "-message";
 
-
     const name =
         document.createElement("div");
-
 
     name.className =
         "message-name";
 
-
     name.textContent =
         sender;
-
 
     const text =
         document.createElement("div");
 
-
     text.className =
         "message-text";
-
 
     text.textContent =
         message;
 
-
     const time =
         document.createElement("small");
-
 
     time.textContent =
         new Date().toLocaleTimeString(
@@ -417,7 +617,6 @@ function addMessage(
             }
         );
 
-
     messageDiv.appendChild(name);
 
     messageDiv.appendChild(text);
@@ -427,7 +626,6 @@ function addMessage(
     row.appendChild(messageDiv);
 
     chatBox.appendChild(row);
-
 
     chatBox.scrollTop =
         chatBox.scrollHeight;
@@ -444,54 +642,41 @@ function addImageMessage(file) {
     const row =
         document.createElement("div");
 
-
     row.className =
         "message-row user-row";
-
 
     const messageDiv =
         document.createElement("div");
 
-
     messageDiv.className =
         "message user-message";
-
 
     const name =
         document.createElement("div");
 
-
     name.className =
         "message-name";
-
 
     name.textContent =
         "👤 You";
 
-
     const img =
         document.createElement("img");
-
 
     img.src =
         URL.createObjectURL(file);
 
-
     img.style.maxWidth =
         "250px";
-
 
     img.style.maxHeight =
         "250px";
 
-
     img.style.borderRadius =
         "12px";
 
-
     img.style.marginTop =
         "8px";
-
 
     messageDiv.appendChild(name);
 
@@ -501,7 +686,6 @@ function addImageMessage(file) {
 
     chatBox.appendChild(row);
 
-
     chatBox.scrollTop =
         chatBox.scrollHeight;
 
@@ -509,70 +693,7 @@ function addImageMessage(file) {
 
 
 // ==========================================
-// ADD PDF MESSAGE
-// ==========================================
-
-function addPdfMessage(file) {
-
-    const row =
-        document.createElement("div");
-
-
-    row.className =
-        "message-row user-row";
-
-
-    const messageDiv =
-        document.createElement("div");
-
-
-    messageDiv.className =
-        "message user-message";
-
-
-    const name =
-        document.createElement("div");
-
-
-    name.className =
-        "message-name";
-
-
-    name.textContent =
-        "👤 You";
-
-
-    const pdfBox =
-        document.createElement("div");
-
-
-    pdfBox.className =
-        "pdf-message-box";
-
-
-    pdfBox.innerHTML =
-        "📄 <strong>" +
-        file.name +
-        "</strong>";
-
-
-    messageDiv.appendChild(name);
-
-    messageDiv.appendChild(pdfBox);
-
-    row.appendChild(messageDiv);
-
-    chatBox.appendChild(row);
-
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
-
-}
-
-
-// ==========================================
-// TYPING MESSAGE
+// TYPING
 // ==========================================
 
 function showTyping() {
@@ -580,31 +701,24 @@ function showTyping() {
     const row =
         document.createElement("div");
 
-
     row.className =
         "message-row bot-row";
-
 
     row.id =
         "typingMessage";
 
-
     const message =
         document.createElement("div");
-
 
     message.className =
         "message bot-message";
 
-
     message.textContent =
         "🤖 NeuraChat AI is thinking...";
-
 
     row.appendChild(message);
 
     chatBox.appendChild(row);
-
 
     chatBox.scrollTop =
         chatBox.scrollHeight;
@@ -622,7 +736,6 @@ function removeTyping() {
         document.getElementById(
             "typingMessage"
         );
-
 
     if (typing) {
 
@@ -642,21 +755,11 @@ async function sendMessage() {
     const message =
         userInput.value.trim();
 
-
-    // Nothing to send
-
-    if (
-        !message &&
-        !selectedImage &&
-        !selectedPdf
-    ) {
+    if (!message && !selectedImage) {
 
         return;
 
     }
-
-
-    // Show user text
 
     if (message) {
 
@@ -668,18 +771,8 @@ async function sendMessage() {
 
     }
 
-
-    // Save files before clearing
-
     const imageToSend =
         selectedImage;
-
-
-    const pdfToSend =
-        selectedPdf;
-
-
-    // Show image
 
     if (imageToSend) {
 
@@ -689,27 +782,9 @@ async function sendMessage() {
 
     }
 
-
-    // Show PDF
-
-    if (pdfToSend) {
-
-        addPdfMessage(
-            pdfToSend
-        );
-
-    }
-
-
-    // Clear input
-
     userInput.value = "";
 
-
     selectedImage = null;
-
-    selectedPdf = null;
-
 
     if (imageInput) {
 
@@ -717,157 +792,88 @@ async function sendMessage() {
 
     }
 
+    if (imagePreview) {
 
-    if (pdfInput) {
-
-        pdfInput.value = "";
+        imagePreview.src = "";
 
     }
 
+    if (imagePreviewContainer) {
 
-    if (filePreviewContainer) {
-
-        filePreviewContainer.style.display =
+        imagePreviewContainer.style.display =
             "none";
 
     }
 
+    if (emojiPicker) {
 
-    // Show typing
+        emojiPicker.classList.remove(
+            "show"
+        );
+
+    }
 
     showTyping();
-
 
     try {
 
         let response;
 
-
-        // ======================================
-        // TEXT ONLY
-        // ======================================
-
-        if (
-            !imageToSend &&
-            !pdfToSend
-        ) {
+        if (!imageToSend) {
 
             response =
                 await fetch(
                     "/get_response",
                     {
-
                         method: "POST",
 
                         headers: {
-
                             "Content-Type":
                                 "application/json"
-
                         },
 
                         body: JSON.stringify({
-
-                            message:
-                                message
-
+                            message: message
                         })
-
                     }
                 );
 
         }
 
-
-        // ======================================
-        // IMAGE
-        // ======================================
-
-        else if (imageToSend) {
+        else {
 
             const formData =
                 new FormData();
-
 
             formData.append(
                 "message",
                 message
             );
-
 
             formData.append(
                 "image",
                 imageToSend
             );
 
-
             response =
                 await fetch(
                     "/get_response",
                     {
-
                         method: "POST",
-
                         body: formData
-
                     }
                 );
 
         }
-
-
-        // ======================================
-        // PDF
-        // ======================================
-
-        else if (pdfToSend) {
-
-            const formData =
-                new FormData();
-
-
-            formData.append(
-                "message",
-                message
-            );
-
-
-            formData.append(
-                "pdf",
-                pdfToSend
-            );
-
-
-            response =
-                await fetch(
-                    "/get_response",
-                    {
-
-                        method: "POST",
-
-                        body: formData
-
-                    }
-                );
-
-        }
-
-
-        // ======================================
-        // RESPONSE
-        // ======================================
 
         const data =
             await response.json();
 
-
         removeTyping();
-
 
         const reply =
             data.response ||
             "Sorry, I couldn't get a response.";
-
 
         addMessage(
             "🤖 NeuraChat AI",
@@ -875,13 +881,9 @@ async function sendMessage() {
             "bot"
         );
 
-
-        // Speak AI response
-
         speakText(reply);
 
     }
-
 
     catch (error) {
 
@@ -890,9 +892,7 @@ async function sendMessage() {
             error
         );
 
-
         removeTyping();
-
 
         addMessage(
             "🤖 NeuraChat AI",
@@ -959,7 +959,6 @@ if (voiceBtn) {
             voiceEnabled =
                 !voiceEnabled;
 
-
             if (voiceEnabled) {
 
                 voiceBtn.textContent =
@@ -977,7 +976,6 @@ if (voiceBtn) {
 
                 voiceBtn.title =
                     "Voice Off";
-
 
                 if (
                     "speechSynthesis"
@@ -1008,7 +1006,6 @@ function speakText(text) {
 
     }
 
-
     if (
         !("speechSynthesis" in window)
     ) {
@@ -1017,27 +1014,21 @@ function speakText(text) {
 
     }
 
-
     window.speechSynthesis.cancel();
-
 
     const speech =
         new SpeechSynthesisUtterance(
             text
         );
 
-
     speech.lang =
         "en-US";
-
 
     speech.rate =
         1;
 
-
     speech.pitch =
         1;
-
 
     window.speechSynthesis.speak(
         speech
@@ -1060,7 +1051,6 @@ if (micBtn) {
                 window.SpeechRecognition ||
                 window.webkitSpeechRecognition;
 
-
             if (!SpeechRecognition) {
 
                 alert(
@@ -1071,29 +1061,22 @@ if (micBtn) {
 
             }
 
-
             const recognition =
                 new SpeechRecognition();
-
 
             recognition.lang =
                 "en-US";
 
-
             recognition.interimResults =
                 false;
-
 
             recognition.continuous =
                 false;
 
-
             micBtn.textContent =
                 "🔴";
 
-
             recognition.start();
-
 
             recognition.onresult =
                 function (event) {
@@ -1103,7 +1086,6 @@ if (micBtn) {
 
                 };
 
-
             recognition.onend =
                 function () {
 
@@ -1111,7 +1093,6 @@ if (micBtn) {
                         "🎤";
 
                 };
-
 
             recognition.onerror =
                 function () {
@@ -1139,7 +1120,6 @@ if (clearBtn) {
 
             chatBox.innerHTML = "";
 
-
             addMessage(
                 "🤖 NeuraChat AI",
                 "Chat cleared! How can I help you? 😊",
@@ -1163,7 +1143,6 @@ if (newChatBtn) {
         function () {
 
             chatBox.innerHTML = "";
-
 
             addMessage(
                 "🤖 NeuraChat AI",
