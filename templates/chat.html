@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,13 +12,18 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
+
 
 <body>
 
 <div class="chat-container">
 
-    <!-- CHAT HEADER -->
+
+    <!-- =========================
+         CHAT HEADER
+    ========================== -->
 
     <div class="chat-header">
 
@@ -52,7 +58,9 @@
     </div>
 
 
-    <!-- CHAT BOX -->
+    <!-- =========================
+         CHAT BOX
+    ========================== -->
 
     <div id="chatBox">
 
@@ -79,10 +87,40 @@
     </div>
 
 
-    <!-- IMAGE PREVIEW -->
+    <!-- =========================
+         FILE PREVIEW
+    ========================== -->
+
+    <div id="filePreviewContainer"
+         class="file-preview-container"
+         style="display:none;">
+
+        <div id="filePreviewIcon"
+             class="file-preview-icon">
+            📄
+        </div>
+
+        <div id="filePreviewName"
+             class="file-preview-name">
+            File
+        </div>
+
+        <button id="removeFileBtn"
+                type="button"
+                title="Remove File">
+            ❌
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         IMAGE PREVIEW
+    ========================== -->
 
     <div id="imagePreviewContainer"
-         style="display: none;">
+         class="image-preview-container"
+         style="display:none;">
 
         <img id="imagePreview"
              src=""
@@ -97,9 +135,15 @@
     </div>
 
 
-    <!-- EMOJI PICKER -->
+    <!-- =========================
+         EMOJI PICKER
+    ========================== -->
 
-    <div id="emojiPicker" class="emoji-picker">
+    <div id="emojiPicker"
+         class="emoji-picker">
+
+
+        <!-- SEARCH -->
 
         <div class="emoji-search-box">
 
@@ -109,6 +153,8 @@
 
         </div>
 
+
+        <!-- CATEGORIES -->
 
         <div class="emoji-categories">
 
@@ -169,6 +215,8 @@
         </div>
 
 
+        <!-- EMOJI LIST -->
+
         <div id="emojiList"
              class="emoji-list">
         </div>
@@ -176,11 +224,14 @@
     </div>
 
 
-    <!-- INPUT AREA -->
+    <!-- =========================
+         INPUT AREA
+    ========================== -->
 
     <div class="input-area">
 
-        <!-- Hidden Image Input -->
+
+        <!-- IMAGE INPUT -->
 
         <input type="file"
                id="imageInput"
@@ -188,7 +239,15 @@
                hidden>
 
 
-        <!-- Image Button -->
+        <!-- PDF INPUT -->
+
+        <input type="file"
+               id="pdfInput"
+               accept=".pdf,application/pdf"
+               hidden>
+
+
+        <!-- IMAGE BUTTON -->
 
         <button id="uploadBtn"
                 title="Upload Image"
@@ -197,7 +256,16 @@
         </button>
 
 
-        <!-- Emoji Button -->
+        <!-- PDF BUTTON -->
+
+        <button id="pdfBtn"
+                title="Upload PDF"
+                type="button">
+            📄
+        </button>
+
+
+        <!-- EMOJI -->
 
         <button id="emojiBtn"
                 title="Emoji"
@@ -206,7 +274,7 @@
         </button>
 
 
-        <!-- Text Input -->
+        <!-- TEXT -->
 
         <input type="text"
                id="userInput"
@@ -214,7 +282,7 @@
                autocomplete="off">
 
 
-        <!-- Microphone -->
+        <!-- MICROPHONE -->
 
         <button id="micBtn"
                 title="Speak"
@@ -223,7 +291,7 @@
         </button>
 
 
-        <!-- Send -->
+        <!-- SEND -->
 
         <button id="sendBtn"
                 type="button">
