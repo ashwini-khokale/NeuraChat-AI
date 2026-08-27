@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -12,19 +11,13 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
-
 </head>
-
 
 <body>
 
-
 <div class="chat-container">
 
-
-    <!-- =========================
-         CHAT HEADER
-    ========================== -->
+    <!-- CHAT HEADER -->
 
     <div class="chat-header">
 
@@ -34,29 +27,23 @@
             🟢 Online
         </p>
 
-
         <div class="chat-controls">
 
-            <button
-                id="newChatBtn"
-                title="New Chat"
-                type="button">
+            <button id="newChatBtn"
+                    title="New Chat"
+                    type="button">
                 ➕
             </button>
 
-
-            <button
-                id="clearBtn"
-                title="Clear Chat"
-                type="button">
+            <button id="clearBtn"
+                    title="Clear Chat"
+                    type="button">
                 🗑️
             </button>
 
-
-            <button
-                id="voiceBtn"
-                title="Voice On"
-                type="button">
+            <button id="voiceBtn"
+                    title="Voice On"
+                    type="button">
                 🔊
             </button>
 
@@ -65,9 +52,7 @@
     </div>
 
 
-    <!-- =========================
-         CHAT BOX
-    ========================== -->
+    <!-- CHAT BOX -->
 
     <div id="chatBox">
 
@@ -94,136 +79,163 @@
     </div>
 
 
-    <!-- =========================
-         FILE PREVIEW
-    ========================== -->
+    <!-- IMAGE PREVIEW -->
 
-    <div id="filePreviewContainer"
+    <div id="imagePreviewContainer"
          style="display: none;">
 
+        <img id="imagePreview"
+             src=""
+             alt="Selected Image">
 
-        <div id="imagePreviewBox">
-
-            <img
-                id="imagePreview"
-                src=""
-                alt="Selected Image"
-            >
-
-        </div>
-
-
-        <div id="pdfPreviewBox">
-
-            <div class="pdf-icon">
-                📄
-            </div>
-
-            <div id="pdfFileName">
-                PDF selected
-            </div>
-
-        </div>
-
-
-        <button
-            id="removeFileBtn"
-            type="button"
-            title="Remove File">
+        <button id="removeImageBtn"
+                type="button"
+                title="Remove Image">
             ❌
         </button>
 
     </div>
 
 
-    <!-- =========================
-         INPUT AREA
-    ========================== -->
+    <!-- EMOJI PICKER -->
+
+    <div id="emojiPicker" class="emoji-picker">
+
+        <div class="emoji-search-box">
+
+            <input type="text"
+                   id="emojiSearch"
+                   placeholder="🔍 Search emoji...">
+
+        </div>
+
+
+        <div class="emoji-categories">
+
+            <button type="button"
+                    class="emoji-category active"
+                    data-category="smileys">
+                😀
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="people">
+                👋
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="animals">
+                🐶
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="food">
+                🍕
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="activities">
+                ⚽
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="travel">
+                🚗
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="objects">
+                💡
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="symbols">
+                ❤️
+            </button>
+
+            <button type="button"
+                    class="emoji-category"
+                    data-category="flags">
+                🇮🇳
+            </button>
+
+        </div>
+
+
+        <div id="emojiList"
+             class="emoji-list">
+        </div>
+
+    </div>
+
+
+    <!-- INPUT AREA -->
 
     <div class="input-area">
 
-
         <!-- Hidden Image Input -->
 
-        <input
-            type="file"
-            id="imageInput"
-            accept="image/*"
-            hidden
-        >
+        <input type="file"
+               id="imageInput"
+               accept="image/*"
+               hidden>
 
 
-        <!-- Hidden PDF Input -->
+        <!-- Image Button -->
 
-        <input
-            type="file"
-            id="pdfInput"
-            accept=".pdf,application/pdf"
-            hidden
-        >
-
-
-        <!-- Image Upload -->
-
-        <button
-            id="uploadBtn"
-            title="Upload Image"
-            type="button">
+        <button id="uploadBtn"
+                title="Upload Image"
+                type="button">
             🖼️
         </button>
 
 
-        <!-- PDF Upload -->
+        <!-- Emoji Button -->
 
-        <button
-            id="pdfBtn"
-            title="Upload PDF"
-            type="button">
-            📄
+        <button id="emojiBtn"
+                title="Emoji"
+                type="button">
+            😊
         </button>
 
 
         <!-- Text Input -->
 
-        <input
-            type="text"
-            id="userInput"
-            placeholder="Type your message..."
-            autocomplete="off"
-        >
+        <input type="text"
+               id="userInput"
+               placeholder="Type your message..."
+               autocomplete="off">
 
 
         <!-- Microphone -->
 
-        <button
-            id="micBtn"
-            title="Speak"
-            type="button">
+        <button id="micBtn"
+                title="Speak"
+                type="button">
             🎤
         </button>
 
 
         <!-- Send -->
 
-        <button
-            id="sendBtn"
-            type="button">
+        <button id="sendBtn"
+                type="button">
             Send
         </button>
 
-
     </div>
-
 
 </div>
 
 
-<!-- =========================
-     CHAT JAVASCRIPT
-========================== -->
-
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
-
 
 </body>
 
