@@ -7,7 +7,7 @@
 
 
 /* =========================
-   PINK GLASS BACKGROUND
+   BODY
 ========================= */
 
 body {
@@ -413,6 +413,8 @@ button:hover {
     backdrop-filter: blur(15px);
 
     gap: 8px;
+
+    position: relative;
 }
 
 
@@ -465,7 +467,7 @@ button:hover {
 
 
 /* =========================
-   IMAGE UPLOAD BUTTON
+   IMAGE BUTTON
 ========================= */
 
 #uploadBtn {
@@ -506,16 +508,261 @@ button:hover {
 #uploadBtn:hover {
 
     transform: scale(1.05);
-
-    box-shadow:
-        0 8px 25px
-        rgba(255, 79, 163, 0.5);
 }
 
 
-#uploadBtn:active {
+/* =========================
+   EMOJI BUTTON
+========================= */
 
-    transform: scale(0.95);
+#emojiBtn {
+
+    padding: 15px;
+
+    font-size: 20px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff4fa3,
+            #ec4899
+        );
+
+    color: white;
+
+    flex-shrink: 0;
+
+    transition: 0.3s;
+}
+
+
+#emojiBtn:hover {
+
+    transform: scale(1.05);
+
+}
+
+
+/* =========================
+   EMOJI PICKER
+========================= */
+
+.emoji-picker {
+
+    position: absolute;
+
+    right: 15px;
+
+    bottom: 82px;
+
+    width: 360px;
+
+    max-width: calc(100% - 30px);
+
+    height: 390px;
+
+    background:
+        rgba(35, 12, 38, 0.97);
+
+    border:
+        1px solid
+        rgba(255, 105, 180, 0.35);
+
+    border-radius: 18px;
+
+    backdrop-filter: blur(20px);
+
+    box-shadow:
+        0 15px 50px
+        rgba(0, 0, 0, 0.5),
+
+        0 0 25px
+        rgba(255, 79, 163, 0.2);
+
+    display: none;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    z-index: 100;
+}
+
+
+.emoji-picker.show {
+
+    display: flex;
+
+    animation:
+        emojiPickerIn 0.2s ease;
+}
+
+
+/* =========================
+   EMOJI SEARCH
+========================= */
+
+.emoji-search-box {
+
+    padding: 12px;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+}
+
+
+#emojiSearch {
+
+    width: 100%;
+
+    padding: 11px 13px;
+
+    border:
+        1px solid
+        rgba(255, 105, 180, 0.25);
+
+    border-radius: 12px;
+
+    outline: none;
+
+    color: white;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    font-size: 14px;
+}
+
+
+#emojiSearch::placeholder {
+
+    color: #d8a9c1;
+}
+
+
+#emojiSearch:focus {
+
+    border-color:
+        #ff4fa3;
+
+    box-shadow:
+        0 0 10px
+        rgba(255, 79, 163, 0.2);
+}
+
+
+/* =========================
+   EMOJI CATEGORIES
+========================= */
+
+.emoji-categories {
+
+    display: flex;
+
+    gap: 4px;
+
+    padding: 8px;
+
+    overflow-x: auto;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+}
+
+
+.emoji-category {
+
+    padding: 7px 9px;
+
+    min-width: 38px;
+
+    font-size: 18px;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    box-shadow: none;
+
+    border-radius: 9px;
+}
+
+
+.emoji-category:hover {
+
+    transform: none;
+
+    background:
+        rgba(255, 79, 163, 0.25);
+}
+
+
+.emoji-category.active {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff4fa3,
+            #ec4899
+        );
+
+}
+
+
+/* =========================
+   EMOJI LIST
+========================= */
+
+.emoji-list {
+
+    flex: 1;
+
+    padding: 10px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(8, 1fr);
+
+    gap: 4px;
+
+    overflow-y: auto;
+}
+
+
+.emoji-item {
+
+    padding: 6px;
+
+    font-size: 25px;
+
+    min-width: 0;
+
+    background: transparent;
+
+    box-shadow: none;
+
+    border-radius: 9px;
+
+    line-height: 1;
+
+}
+
+
+.emoji-item:hover {
+
+    transform: scale(1.2);
+
+    background:
+        rgba(255, 79, 163, 0.18);
+
 }
 
 
@@ -622,10 +869,6 @@ button:hover {
 #micBtn:hover {
 
     transform: scale(1.05);
-
-    box-shadow:
-        0 8px 25px
-        rgba(255, 79, 163, 0.5);
 }
 
 
@@ -638,9 +881,6 @@ button:hover {
     animation:
         micPulse 1s infinite;
 
-    box-shadow:
-        0 0 30px
-        rgba(255, 79, 163, 0.9);
 }
 
 
@@ -650,28 +890,49 @@ button:hover {
 
         transform: scale(1);
 
-        box-shadow:
-            0 0 10px
-            rgba(255, 79, 163, 0.4);
     }
 
     50% {
 
         transform: scale(1.08);
 
-        box-shadow:
-            0 0 30px
-            rgba(255, 79, 163, 0.9);
     }
 
     100% {
 
         transform: scale(1);
 
-        box-shadow:
-            0 0 10px
-            rgba(255, 79, 163, 0.4);
     }
+
+}
+
+
+/* =========================
+   EMOJI ANIMATION
+========================= */
+
+@keyframes emojiPickerIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(10px)
+            scale(0.97);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
 }
 
 
@@ -825,11 +1086,12 @@ button:hover {
     }
 
 
-    #uploadBtn {
+    #uploadBtn,
+    #emojiBtn {
 
         padding: 12px;
 
-        font-size: 16px;
+        font-size: 17px;
     }
 
 
@@ -846,6 +1108,25 @@ button:hover {
         padding: 12px 16px;
 
         font-size: 15px;
+    }
+
+
+    .emoji-picker {
+
+        right: 10px;
+
+        bottom: 72px;
+
+        width: 340px;
+
+        height: 370px;
+    }
+
+
+    .emoji-list {
+
+        grid-template-columns:
+            repeat(7, 1fr);
     }
 
 }
@@ -923,17 +1204,18 @@ button:hover {
     }
 
 
-    #uploadBtn {
+    #uploadBtn,
+    #emojiBtn {
 
-        padding: 11px;
+        padding: 10px;
 
-        font-size: 15px;
+        font-size: 16px;
     }
 
 
     #micBtn {
 
-        padding: 11px;
+        padding: 10px;
 
         font-size: 15px;
     }
@@ -952,6 +1234,53 @@ button:hover {
         width: 90px;
 
         height: 90px;
+    }
+
+
+    .emoji-picker {
+
+        left: 8px;
+
+        right: 8px;
+
+        bottom: 68px;
+
+        width: auto;
+
+        max-width: none;
+
+        height: 350px;
+
+        border-radius: 16px;
+    }
+
+
+    .emoji-list {
+
+        grid-template-columns:
+            repeat(7, 1fr);
+
+        gap: 3px;
+
+        padding: 8px;
+    }
+
+
+    .emoji-item {
+
+        font-size: 23px;
+
+        padding: 5px;
+    }
+
+
+    .emoji-category {
+
+        min-width: 35px;
+
+        padding: 6px 7px;
+
+        font-size: 17px;
     }
 
 }
@@ -985,15 +1314,23 @@ button:hover {
 
     #micBtn {
 
-        padding: 10px;
+        padding: 9px;
     }
 
 
-    #uploadBtn {
+    #uploadBtn,
+    #emojiBtn {
 
-        padding: 10px;
+        padding: 9px;
 
         font-size: 14px;
+    }
+
+
+    .emoji-list {
+
+        grid-template-columns:
+            repeat(6, 1fr);
     }
 
 }
